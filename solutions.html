@@ -501,11 +501,117 @@
     </div>
 
     <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:8000/api';
+        
+        // API utility functions
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            
+            const config = { ...defaultOptions, ...options };
+            
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API request failed:', error);
+                throw error;
+            }
+        }
+        
+        // Get all notes from API
+        async function loadNotesFromAPI() {
+            try {
+                const response = await apiRequest('/notes');
+                return response.data || [];
+            } catch (error) {
+                console.error('Failed to load notes:', error);
+                return [];
+            }
+        }
+        
+        // Create note via API
+        async function createNoteAPI(content, authorName, authorType) {
+            try {
+                const response = await apiRequest('/notes', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        content: content,
+                        author_name: authorName,
+                        author_type: authorType
+                    })
+                });
+                return response.data;
+            } catch (error) {
+                console.error('Failed to create note:', error);
+                throw error;
+            }
+        }
+        
+        // Like note via API
+        async function likeNoteAPI(noteId) {
+            try {
+                const response = await apiRequest(`/notes/${noteId}/like`, {
+                    method: 'POST'
+                });
+                return response.success;
+            } catch (error) {
+                console.error('Failed to like note:', error);
+                return false;
+            }
+        }
+        
+        // Unlike note via API
+        async function unlikeNoteAPI(noteId) {
+            try {
+                const response = await apiRequest(`/notes/${noteId}/like`, {
+                    method: 'DELETE'
+                });
+                return response.success;
+            } catch (error) {
+                console.error('Failed to unlike note:', error);
+                return false;
+            }
+        }
+        
+        // Check if note is liked
+        async function checkNoteLiked(noteId) {
+            try {
+                const response = await apiRequest(`/notes/${noteId}/liked`);
+                return response.data.liked;
+            } catch (error) {
+                console.error('Failed to check like status:', error);
+                return false;
+            }
+        }
+        
+        // Get user's liked notes
+        async function getUserLikedNotes() {
+            try {
+                const response = await apiRequest('/user/likes');
+                return response.data.liked_notes || [];
+            } catch (error) {
+                console.error('Failed to get user likes:', error);
+                return [];
+            }
+        }
+
         // Like functionality
         const likedNotes = new Set(JSON.parse(localStorage.getItem('likedNotes') || '[]'));
         let currentModalCard = null;
 
-        function toggleLike(button) {
+        async function toggleLike(button) {
             const card = button.closest('.note-card');
             const noteId = card.dataset.id;
             const countSpan = button.querySelector('.like-count');
@@ -514,40 +620,133 @@
 
             if (likedNotes.has(noteId)) {
                 // Unlike
-                likedNotes.delete(noteId);
-                button.classList.remove('liked');
-                heartIcon.setAttribute('fill', 'none');
-                const currentCount = parseInt(countSpan.textContent);
-                countSpan.textContent = currentCount - 1;
-                if (helpedCountSpan) {
-                    helpedCountSpan.textContent = currentCount - 1;
+                const success = await unlikeNoteAPI(noteId);
+                if (success) {
+                    likedNotes.delete(noteId);
+                    button.classList.remove('liked');
+                    heartIcon.setAttribute('fill', 'none');
+                    const currentCount = parseInt(countSpan.textContent);
+                    countSpan.textContent = currentCount - 1;
+                    if (helpedCountSpan) {
+                        helpedCountSpan.textContent = currentCount - 1;
+                    }
+                    localStorage.setItem('likedNotes', JSON.stringify([...likedNotes]));
                 }
             } else {
                 // Like
-                likedNotes.add(noteId);
-                button.classList.add('liked');
-                heartIcon.setAttribute('fill', 'currentColor');
-                const currentCount = parseInt(countSpan.textContent);
-                countSpan.textContent = currentCount + 1;
-                if (helpedCountSpan) {
-                    helpedCountSpan.textContent = currentCount + 1;
+                const success = await likeNoteAPI(noteId);
+                if (success) {
+                    likedNotes.add(noteId);
+                    button.classList.add('liked');
+                    heartIcon.setAttribute('fill', 'currentColor');
+                    const currentCount = parseInt(countSpan.textContent);
+                    countSpan.textContent = currentCount + 1;
+                    if (helpedCountSpan) {
+                        helpedCountSpan.textContent = currentCount + 1;
+                    }
+                    localStorage.setItem('likedNotes', JSON.stringify([...likedNotes]));
                 }
             }
+        }
 
-            localStorage.setItem('likedNotes', JSON.stringify([...likedNotes]));
+        // Create note card from API data
+        function createNoteCardFromAPI(noteData) {
+            const colors = [
+                { bg: 'bg-yellow-pastel', gradient: 'from-yellow-400 to-amber-500', initial: 'A' },
+                { bg: 'bg-pink-pastel', gradient: 'from-pink-400 to-rose-500', initial: 'B' },
+                { bg: 'bg-green-pastel', gradient: 'from-green-400 to-emerald-500', initial: 'C' },
+                { bg: 'bg-purple-pastel', gradient: 'from-purple-400 to-violet-500', initial: 'D' },
+                { bg: 'bg-blue-pastel', gradient: 'from-blue-400 to-cyan-500', initial: 'E' },
+                { bg: 'bg-orange-pastel', gradient: 'from-orange-400 to-amber-500', initial: 'F' }
+            ];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            // Determine display name and avatar
+            let displayName, avatarInitial;
+            if (noteData.author_type === 'anonymous') {
+                displayName = 'Anonymous';
+                avatarInitial = randomColor.initial;
+            } else {
+                displayName = noteData.author_name;
+                avatarInitial = noteData.author_name.charAt(0).toUpperCase();
+            }
+
+            const card = document.createElement('div');
+            card.className = `note-card ${randomColor.bg} rounded-2xl p-6 shadow`;
+            card.dataset.id = noteData.id;
+            card.setAttribute('onclick', 'openNoteModal(this)');
+            card.innerHTML = `
+                <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
+                    "${noteData.content}"
+                </p>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br ${randomColor.gradient} flex items-center justify-center text-white font-bold">
+                            ${avatarInitial}
+                        </div>
+                        <span class="text-slate-700 font-medium">${displayName}</span>
+                    </div>
+                    <button class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                        onclick="toggleLike(this)">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <span class="like-count font-semibold">${noteData.like_count}</span>
+                    </button>
+                </div>
+                <div class="text-sm text-slate-500">
+                    Helped <span class="helped-count font-semibold text-slate-700">${noteData.helped_count}</span> people
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Load notes from API and render them
+        async function loadAndRenderNotes() {
+            try {
+                const notes = await loadNotesFromAPI();
+                const container = document.getElementById('notes-container');
+                
+                // Clear existing static notes
+                container.innerHTML = '';
+                
+                // Render notes from API
+                notes.forEach(noteData => {
+                    const card = createNoteCardFromAPI(noteData);
+                    container.appendChild(card);
+                });
+                
+                // Load user's liked notes and update UI
+                const userLikedNotes = await getUserLikedNotes();
+                userLikedNotes.forEach(noteId => {
+                    likedNotes.add(noteId.toString());
+                });
+                
+                // Update like states
+                document.querySelectorAll('.note-card').forEach(card => {
+                    const noteId = card.dataset.id;
+                    if (likedNotes.has(noteId)) {
+                        const button = card.querySelector('.like-btn');
+                        const heartIcon = button.querySelector('svg');
+                        button.classList.add('liked');
+                        heartIcon.setAttribute('fill', 'currentColor');
+                    }
+                });
+                
+                localStorage.setItem('likedNotes', JSON.stringify([...likedNotes]));
+                
+            } catch (error) {
+                console.error('Failed to load notes:', error);
+                // Keep existing static notes as fallback
+            }
         }
 
         // Initialize liked states
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.note-card').forEach(card => {
-                const noteId = card.dataset.id;
-                if (likedNotes.has(noteId)) {
-                    const button = card.querySelector('.like-btn');
-                    const heartIcon = button.querySelector('svg');
-                    button.classList.add('liked');
-                    heartIcon.setAttribute('fill', 'currentColor');
-                }
-            });
+            // Load notes from API
+            loadAndRenderNotes();
         });
 
         // Share functionality
@@ -659,68 +858,81 @@
             }, 2000);
         }
 
-        function createNoteCard(text, mode = 'anonymous', nickname = '') {
-            const colors = [
-                { bg: 'bg-yellow-pastel', gradient: 'from-yellow-400 to-amber-500', initial: 'A' },
-                { bg: 'bg-pink-pastel', gradient: 'from-pink-400 to-rose-500', initial: 'B' },
-                { bg: 'bg-green-pastel', gradient: 'from-green-400 to-emerald-500', initial: 'C' },
-                { bg: 'bg-purple-pastel', gradient: 'from-purple-400 to-violet-500', initial: 'D' },
-                { bg: 'bg-blue-pastel', gradient: 'from-blue-400 to-cyan-500', initial: 'E' },
-                { bg: 'bg-orange-pastel', gradient: 'from-orange-400 to-amber-500', initial: 'F' }
-            ];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            const newId = 'note_' + Date.now();
+        async function createNoteCard(text, mode = 'anonymous', nickname = '') {
+            try {
+                // Create note via API
+                const authorName = mode === 'anonymous' ? 'Anonymous' : nickname;
+                const authorType = mode;
+                
+                const noteData = await createNoteAPI(text, authorName, authorType);
+                
+                if (noteData && noteData.id) {
+                    // Create card with API data
+                    const colors = [
+                        { bg: 'bg-yellow-pastel', gradient: 'from-yellow-400 to-amber-500', initial: 'A' },
+                        { bg: 'bg-pink-pastel', gradient: 'from-pink-400 to-rose-500', initial: 'B' },
+                        { bg: 'bg-green-pastel', gradient: 'from-green-400 to-emerald-500', initial: 'C' },
+                        { bg: 'bg-purple-pastel', gradient: 'from-purple-400 to-violet-500', initial: 'D' },
+                        { bg: 'bg-blue-pastel', gradient: 'from-blue-400 to-cyan-500', initial: 'E' },
+                        { bg: 'bg-orange-pastel', gradient: 'from-orange-400 to-amber-500', initial: 'F' }
+                    ];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-            // Determine display name and avatar
-            let displayName, avatarInitial;
-            if (mode === 'anonymous') {
-                displayName = 'Anonymous';
-                avatarInitial = randomColor.initial;
-            } else {
-                displayName = nickname;
-                avatarInitial = nickname.charAt(0).toUpperCase();
-            }
+                    // Determine display name and avatar
+                    let displayName, avatarInitial;
+                    if (mode === 'anonymous') {
+                        displayName = 'Anonymous';
+                        avatarInitial = randomColor.initial;
+                    } else {
+                        displayName = nickname;
+                        avatarInitial = nickname.charAt(0).toUpperCase();
+                    }
 
-            const card = document.createElement('div');
-            card.className = `note-card ${randomColor.bg} rounded-2xl p-6 shadow`;
-            card.dataset.id = newId;
-            card.setAttribute('onclick', 'openNoteModal(this)');
-            card.innerHTML = `
-                <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
-                    "${text}"
-                </p>
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br ${randomColor.gradient} flex items-center justify-center text-white font-bold">
-                            ${avatarInitial}
+                    const card = document.createElement('div');
+                    card.className = `note-card ${randomColor.bg} rounded-2xl p-6 shadow`;
+                    card.dataset.id = noteData.id;
+                    card.setAttribute('onclick', 'openNoteModal(this)');
+                    card.innerHTML = `
+                        <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
+                            "${text}"
+                        </p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br ${randomColor.gradient} flex items-center justify-center text-white font-bold">
+                                    ${avatarInitial}
+                                </div>
+                                <span class="text-slate-700 font-medium">${displayName}</span>
+                            </div>
+                            <button class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                                onclick="toggleLike(this)">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span class="like-count font-semibold">0</span>
+                            </button>
                         </div>
-                        <span class="text-slate-700 font-medium">${displayName}</span>
-                    </div>
-                    <button class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
-                        onclick="toggleLike(this)">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                        </svg>
-                        <span class="like-count font-semibold">0</span>
-                    </button>
-                </div>
-                <div class="text-sm text-slate-500">
-                    Helped <span class="helped-count font-semibold text-slate-700">0</span> people
-                </div>
-            `;
+                        <div class="text-sm text-slate-500">
+                            Helped <span class="helped-count font-semibold text-slate-700">0</span> people
+                        </div>
+                    `;
 
-            const container = document.getElementById('notes-container');
-            container.insertBefore(card, container.firstChild);
+                    const container = document.getElementById('notes-container');
+                    container.insertBefore(card, container.firstChild);
 
-            // Animate the new card
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                card.style.transition = 'all 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'scale(1)';
-            }, 10);
+                    // Animate the new card
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 10);
+                }
+            } catch (error) {
+                console.error('Failed to create note:', error);
+                alert('Failed to create note. Please try again.');
+            }
         }
 
         shareBtn.addEventListener('click', showShareModeModal);
@@ -821,11 +1033,11 @@
             }, 300);
         }
 
-        function toggleLikeFromModal() {
+        async function toggleLikeFromModal() {
             if (!currentModalCard) return;
 
             const likeBtn = currentModalCard.querySelector('.like-btn');
-            toggleLike(likeBtn);
+            await toggleLike(likeBtn);
 
             // Update modal display
             const likeCount = currentModalCard.querySelector('.like-count').textContent;
