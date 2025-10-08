@@ -1,5 +1,104 @@
 from datetime import datetime
 
+class WallSticker:
+    def __init__(self, id=None, text=None, type='anxiety', category='', body_part='', 
+                 intensity=3, position_x=50.0, position_y=50.0, rotation=0.0, 
+                 created_at=None, updated_at=None):
+        self.id = id
+        self.text = text
+        self.type = type  # 'anxiety' or 'support'
+        self.category = category
+        self.body_part = body_part
+        self.intensity = intensity
+        self.position_x = position_x
+        self.position_y = position_y
+        self.rotation = rotation
+        self.created_at = created_at or datetime.now()
+        self.updated_at = updated_at or datetime.now()
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+            'type': self.type,
+            'category': self.category,
+            'body_part': self.body_part,
+            'intensity': self.intensity,
+            'position_x': self.position_x,
+            'position_y': self.position_y,
+            'position': f"{self.position_x}%, {self.position_y}%",
+            'rotation': self.rotation,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+    
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id=data.get('id'),
+            text=data.get('text'),
+            type=data.get('type', 'anxiety'),
+            category=data.get('category', ''),
+            body_part=data.get('body_part', ''),
+            intensity=data.get('intensity', 3),
+            position_x=data.get('position_x', 50.0),
+            position_y=data.get('position_y', 50.0),
+            rotation=data.get('rotation', 0.0),
+            created_at=data.get('created_at'),
+            updated_at=data.get('updated_at')
+        )
+
+class StickerConnection:
+    def __init__(self, id=None, sticker1_id=None, sticker2_id=None, created_at=None):
+        self.id = id
+        self.sticker1_id = sticker1_id
+        self.sticker2_id = sticker2_id
+        self.created_at = created_at or datetime.now()
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'sticker1_id': self.sticker1_id,
+            'sticker2_id': self.sticker2_id,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+    
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id=data.get('id'),
+            sticker1_id=data.get('sticker1_id'),
+            sticker2_id=data.get('sticker2_id'),
+            created_at=data.get('created_at')
+        )
+
+class StickerReaction:
+    def __init__(self, id=None, sticker_id=None, reaction_type=None, user_ip=None, created_at=None):
+        self.id = id
+        self.sticker_id = sticker_id
+        self.reaction_type = reaction_type  # 'same' or 'great'
+        self.user_ip = user_ip
+        self.created_at = created_at or datetime.now()
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'sticker_id': self.sticker_id,
+            'reaction_type': self.reaction_type,
+            'user_ip': self.user_ip,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+    
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id=data.get('id'),
+            sticker_id=data.get('sticker_id'),
+            reaction_type=data.get('reaction_type'),
+            user_ip=data.get('user_ip'),
+            created_at=data.get('created_at')
+        )
+
 class SolutionNote:
     def __init__(self, id=None, content=None, author_name=None, author_type='anonymous', 
                  like_count=0, helped_count=0, created_at=None):

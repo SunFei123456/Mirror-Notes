@@ -56,7 +56,7 @@ python run.py
 
 ## API端点
 
-### 笔记管理
+### 解决方案笔记 (Solutions)
 
 - `GET /api/notes` - 获取所有笔记
 - `GET /api/notes/{id}` - 获取特定笔记
@@ -68,6 +68,28 @@ python run.py
 - `DELETE /api/notes/{id}/like` - 取消点赞
 - `GET /api/notes/{id}/liked` - 检查点赞状态
 - `GET /api/user/likes` - 获取用户点赞列表
+
+### 消息墙便签 (Message Wall)
+
+- `GET /api/wall/stickers` - 获取所有便签
+- `GET /api/wall/stickers/{id}` - 获取特定便签
+- `POST /api/wall/stickers` - 创建新便签
+- `PUT /api/wall/stickers/{id}/position` - 更新便签位置
+- `DELETE /api/wall/stickers/{id}` - 删除便签
+- `GET /api/wall/stickers/filter` - 根据过滤条件获取便签
+
+### 便签连接
+
+- `GET /api/wall/connections` - 获取所有连接
+- `POST /api/wall/connections` - 创建便签连接
+- `DELETE /api/wall/connections` - 删除便签连接
+
+### 便签反应
+
+- `GET /api/wall/stickers/{id}/reactions` - 获取便签反应统计
+- `POST /api/wall/stickers/{id}/reactions` - 添加便签反应
+- `DELETE /api/wall/stickers/{id}/reactions` - 移除便签反应
+- `GET /api/wall/user/reactions` - 获取用户的所有反应
 
 ## 数据库结构
 
@@ -86,6 +108,32 @@ python run.py
 - `user_ip`: 用户IP
 - `note_id`: 笔记ID
 - `created_at`: 点赞时间
+
+### wall_stickers 表
+- `id`: 主键
+- `text`: 便签内容
+- `type`: 便签类型 (anxiety/support)
+- `category`: 分类
+- `body_part`: 身体部位
+- `intensity`: 焦虑程度(1-5)
+- `position_x`: X坐标百分比
+- `position_y`: Y坐标百分比
+- `rotation`: 旋转角度
+- `created_at`: 创建时间
+- `updated_at`: 更新时间
+
+### sticker_connections 表
+- `id`: 主键
+- `sticker1_id`: 便签1 ID
+- `sticker2_id`: 便签2 ID
+- `created_at`: 连接时间
+
+### sticker_reactions 表
+- `id`: 主键
+- `sticker_id`: 便签ID
+- `reaction_type`: 反应类型 (same/great)
+- `user_ip`: 用户IP
+- `created_at`: 反应时间
 
 ## 环境变量
 
