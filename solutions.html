@@ -503,7 +503,7 @@
     <script>
         // API Configuration
         const API_BASE_URL = 'http://localhost:8000/api';
-        
+
         // API utility functions
         async function apiRequest(endpoint, options = {}) {
             const url = `${API_BASE_URL}${endpoint}`;
@@ -512,24 +512,24 @@
                     'Content-Type': 'application/json',
                 },
             };
-            
+
             const config = { ...defaultOptions, ...options };
-            
+
             try {
                 const response = await fetch(url, config);
                 const data = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 }
-                
+
                 return data;
             } catch (error) {
                 console.error('API request failed:', error);
                 throw error;
             }
         }
-        
+
         // Get all notes from API
         async function loadNotesFromAPI() {
             try {
@@ -540,7 +540,7 @@
                 return [];
             }
         }
-        
+
         // Create note via API
         async function createNoteAPI(content, authorName, authorType) {
             try {
@@ -558,7 +558,7 @@
                 throw error;
             }
         }
-        
+
         // Like note via API
         async function likeNoteAPI(noteId) {
             try {
@@ -571,7 +571,7 @@
                 return false;
             }
         }
-        
+
         // Unlike note via API
         async function unlikeNoteAPI(noteId) {
             try {
@@ -584,7 +584,7 @@
                 return false;
             }
         }
-        
+
         // Check if note is liked
         async function checkNoteLiked(noteId) {
             try {
@@ -595,7 +595,7 @@
                 return false;
             }
         }
-        
+
         // Get user's liked notes
         async function getUserLikedNotes() {
             try {
@@ -708,22 +708,22 @@
             try {
                 const notes = await loadNotesFromAPI();
                 const container = document.getElementById('notes-container');
-                
+
                 // Clear existing static notes
                 container.innerHTML = '';
-                
+
                 // Render notes from API
                 notes.forEach(noteData => {
                     const card = createNoteCardFromAPI(noteData);
                     container.appendChild(card);
                 });
-                
+
                 // Load user's liked notes and update UI
                 const userLikedNotes = await getUserLikedNotes();
                 userLikedNotes.forEach(noteId => {
                     likedNotes.add(noteId.toString());
                 });
-                
+
                 // Update like states
                 document.querySelectorAll('.note-card').forEach(card => {
                     const noteId = card.dataset.id;
@@ -734,9 +734,9 @@
                         heartIcon.setAttribute('fill', 'currentColor');
                     }
                 });
-                
+
                 localStorage.setItem('likedNotes', JSON.stringify([...likedNotes]));
-                
+
             } catch (error) {
                 console.error('Failed to load notes:', error);
                 // Keep existing static notes as fallback
@@ -863,9 +863,9 @@
                 // Create note via API
                 const authorName = mode === 'anonymous' ? 'Anonymous' : nickname;
                 const authorType = mode;
-                
+
                 const noteData = await createNoteAPI(text, authorName, authorType);
-                
+
                 if (noteData && noteData.id) {
                     // Create card with API data
                     const colors = [
