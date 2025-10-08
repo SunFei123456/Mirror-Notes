@@ -518,7 +518,7 @@
 
                 <button id="shuffle-btn"
                     class="w-14 h-14 bg-purple-500 hover:bg-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 group relative"
-                    title="Shuffle Notes">
+                    title="Random Shuffle">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4">
@@ -526,7 +526,7 @@
                     </svg>
                     <span
                         class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                        Shuffle Notes
+                        Random Shuffle
                     </span>
                 </button>
 
@@ -780,12 +780,11 @@
                             <div
                                 class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
                                 6</div>
-                            <h4 class="text-lg font-semibold text-slate-800">🔀 Shuffle Notes</h4>
+                            <h4 class="text-lg font-semibold text-slate-800">🔀 Random Shuffle</h4>
                         </div>
                         <p class="text-slate-700 leading-relaxed">
-                            Click the <strong>Shuffle Notes button</strong> at the bottom right to randomly rearrange
-                            all notes
-                            positions. This gives you a fresh perspective of the wall!
+                            Click the <strong>Random Shuffle button</strong> at the bottom right to get 6 random notes
+                            from all available notes. Each shuffle shows you a different selection!
                         </p>
                     </div>
 
@@ -1053,11 +1052,11 @@
                 this.svgContainer.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
             }
 
-            async loadStickersFromAPI() {
+            async loadStickersFromAPI(limit = 6) {
                 try {
                     // Load stickers from API
                     const apiStickers = await loadStickersFromAPI();
-
+                    
                     if (apiStickers && apiStickers.length > 0) {
                         // Find the highest existing sticker ID to avoid conflicts
                         let maxId = 0;
@@ -1067,16 +1066,20 @@
                         });
                         this.stickerIdCounter = maxId + 1;
 
-                        // Create sticker elements from API data
-                        for (const data of apiStickers) {
-                            const sticker = this.createStickerElementFromAPI(data);
+                        // Shuffle and limit to specified number
+                        const shuffledStickers = this.shuffleArray([...apiStickers]);
+                        const limitedStickers = shuffledStickers.slice(0, limit);
 
+                        // Create sticker elements from limited API data
+                        for (const data of limitedStickers) {
+                            const sticker = this.createStickerElementFromAPI(data);
+                            
                             // Load reaction counts for this sticker
                             const reactions = await getStickerReactionsAPI(data.id);
                             this.updateReactionCounts(data.id, reactions);
                         }
 
-                        // Load connections from API
+                        // Load connections from API (only for displayed stickers)
                         const apiConnections = await loadConnectionsFromAPI();
                         if (apiConnections && apiConnections.length > 0) {
                             setTimeout(() => {
@@ -1096,7 +1099,8 @@
                         }
                     } else {
                         // Load initial stickers if no API data (with animation)
-                        initialStickers.forEach(data => {
+                        const limitedInitial = initialStickers.slice(0, limit);
+                        limitedInitial.forEach(data => {
                             this.createStickerElement(
                                 data.text,
                                 data.type,
@@ -1113,7 +1117,8 @@
                 } catch (error) {
                     console.error('Failed to load stickers from API, using fallback:', error);
                     // Fallback to initial stickers
-                    initialStickers.forEach(data => {
+                    const limitedInitial = initialStickers.slice(0, limit);
+                    limitedInitial.forEach(data => {
                         this.createStickerElement(
                             data.text,
                             data.type,
@@ -2276,67 +2281,45 @@
                 });
             }
 
-            shuffleStickers() {
-                // Generate random positions for all stickers
-                const usedPositions = [];
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
 
-                this.stickers.forEach((stickerData, index) => {
-                    // Generate a random position that doesn't overlap too much
-                    let top, left;
-                    let attempts = 0;
-                    const maxAttempts = 50;
+            async shuffleStickers() {
+                try {
+                    // Clear current stickers
+                    this.stickers.forEach(s => {
+                        s.element.style.transition = 'all 0.3s ease-out';
+                        s.element.style.transform = 'scale(0) rotate(180deg)';
+                        s.element.style.opacity = '0';
+                    });
 
-                    do {
-                        top = Math.random() * 85 + 5; // 5% to 90%
-                        left = Math.random() * 85 + 5; // 5% to 90%
-                        attempts++;
+                    // Clear all connections
+                    this.connections.forEach(conn => {
+                        conn.element.remove();
+                    });
 
-                        // Check if position is too close to existing positions
-                        const tooClose = usedPositions.some(pos => {
-                            const distance = Math.sqrt(Math.pow(pos.top - top, 2) + Math.pow(pos.left - left, 2));
-                            return distance < 15; // Minimum distance of 15%
-                        });
+                    setTimeout(async () => {
+                        // Clear arrays and container
+                        this.stickers = [];
+                        this.connections = [];
+                        this.container.innerHTML = '';
+                        this.svgContainer.innerHTML = '';
 
-                        if (!tooClose || attempts >= maxAttempts) break;
-                    } while (true);
-
-                    usedPositions.push({ top, left });
-
-                    // Animate to new position
-                    if (typeof anime !== 'undefined') {
-                        anime({
-                            targets: stickerData.element,
-                            top: top + '%',
-                            left: left + '%',
-                            duration: 800,
-                            delay: index * 50, // Stagger animation
-                            easing: 'easeInOutQuad',
-                            complete: () => {
-                                // Update connections after all animations complete
-                                if (index === this.stickers.length - 1) {
-                                    setTimeout(() => {
-                                        this.updateConnections();
-                                        this.saveStickersToStorage();
-                                    }, 100);
-                                }
-                            }
-                        });
-                    } else {
-                        // Fallback without anime.js
-                        stickerData.element.style.transition = 'all 0.8s ease-in-out';
-                        stickerData.element.style.top = top + '%';
-                        stickerData.element.style.left = left + '%';
-
-                        if (index === this.stickers.length - 1) {
-                            setTimeout(() => {
-                                this.updateConnections();
-                                this.saveStickersToStorage();
-                            }, 900);
-                        }
-                    }
-                });
-
-                this.showToast('✨ Notes shuffled successfully!');
+                        // Reload 6 random stickers from API
+                        await this.loadStickersFromAPI(6);
+                        
+                        this.showToast('✨ Notes shuffled successfully!');
+                    }, 300);
+                } catch (error) {
+                    console.error('Failed to shuffle stickers:', error);
+                    this.showToast('⚠️ Failed to shuffle notes');
+                }
             }
 
             async resetAllStickers() {
@@ -2362,8 +2345,8 @@
                     this.container.innerHTML = '';
                     this.svgContainer.innerHTML = '';
 
-                    // Reload from API (this will show initial stickers if no API data)
-                    await this.loadStickersFromAPI();
+                    // Reload 6 random stickers from API
+                    await this.loadStickersFromAPI(6);
 
                     // Show success message
                     this.showToast('All notes have been reset');
