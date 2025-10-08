@@ -1056,7 +1056,7 @@
                 try {
                     // Load stickers from API
                     const apiStickers = await loadStickersFromAPI();
-                    
+
                     if (apiStickers && apiStickers.length > 0) {
                         // Find the highest existing sticker ID to avoid conflicts
                         let maxId = 0;
@@ -1073,7 +1073,7 @@
                         // Create sticker elements from limited API data
                         for (const data of limitedStickers) {
                             const sticker = this.createStickerElementFromAPI(data);
-                            
+
                             // Load reaction counts for this sticker
                             const reactions = await getStickerReactionsAPI(data.id);
                             this.updateReactionCounts(data.id, reactions);
@@ -2313,7 +2313,7 @@
 
                         // Reload 6 random stickers from API
                         await this.loadStickersFromAPI(6);
-                        
+
                         this.showToast('✨ Notes shuffled successfully!');
                     }, 300);
                 } catch (error) {
