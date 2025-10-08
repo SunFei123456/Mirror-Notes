@@ -822,7 +822,7 @@
     <script>
         // API Configuration
         const API_BASE_URL = 'http://localhost:8000/api';
-        
+
         // API utility functions
         async function apiRequest(endpoint, options = {}) {
             const url = `${API_BASE_URL}${endpoint}`;
@@ -831,24 +831,24 @@
                     'Content-Type': 'application/json',
                 },
             };
-            
+
             const config = { ...defaultOptions, ...options };
-            
+
             try {
                 const response = await fetch(url, config);
                 const data = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(data.message || `HTTP error! status: ${response.status}`);
                 }
-                
+
                 return data;
             } catch (error) {
                 console.error('API request failed:', error);
                 throw error;
             }
         }
-        
+
         // Wall Sticker API functions
         async function loadStickersFromAPI() {
             try {
@@ -859,7 +859,7 @@
                 return [];
             }
         }
-        
+
         async function createStickerAPI(stickerData) {
             try {
                 const response = await apiRequest('/wall/stickers', {
@@ -872,7 +872,7 @@
                 throw error;
             }
         }
-        
+
         async function updateStickerPositionAPI(stickerId, positionX, positionY, rotation) {
             try {
                 const response = await apiRequest(`/wall/stickers/${stickerId}/position`, {
@@ -889,7 +889,7 @@
                 return false;
             }
         }
-        
+
         async function deleteStickerAPI(stickerId) {
             try {
                 const response = await apiRequest(`/wall/stickers/${stickerId}`, {
@@ -901,7 +901,7 @@
                 return false;
             }
         }
-        
+
         // Connection API functions
         async function createConnectionAPI(sticker1Id, sticker2Id) {
             try {
@@ -918,7 +918,7 @@
                 return false;
             }
         }
-        
+
         async function deleteConnectionAPI(sticker1Id, sticker2Id) {
             try {
                 const response = await apiRequest('/wall/connections', {
@@ -934,7 +934,7 @@
                 return false;
             }
         }
-        
+
         async function loadConnectionsFromAPI() {
             try {
                 const response = await apiRequest('/wall/connections');
@@ -944,7 +944,7 @@
                 return [];
             }
         }
-        
+
         // Reaction API functions
         async function addReactionAPI(stickerId, reactionType) {
             try {
@@ -960,7 +960,7 @@
                 return false;
             }
         }
-        
+
         async function removeReactionAPI(stickerId, reactionType) {
             try {
                 const response = await apiRequest(`/wall/stickers/${stickerId}/reactions`, {
@@ -975,7 +975,7 @@
                 return false;
             }
         }
-        
+
         async function getStickerReactionsAPI(stickerId) {
             try {
                 const response = await apiRequest(`/wall/stickers/${stickerId}/reactions`);
@@ -985,7 +985,7 @@
                 return { same: 0, great: 0 };
             }
         }
-        
+
         async function getUserReactionsAPI() {
             try {
                 const response = await apiRequest('/wall/user/reactions');
@@ -1057,7 +1057,7 @@
                 try {
                     // Load stickers from API
                     const apiStickers = await loadStickersFromAPI();
-                    
+
                     if (apiStickers && apiStickers.length > 0) {
                         // Find the highest existing sticker ID to avoid conflicts
                         let maxId = 0;
@@ -1070,7 +1070,7 @@
                         // Create sticker elements from API data
                         for (const data of apiStickers) {
                             const sticker = this.createStickerElementFromAPI(data);
-                            
+
                             // Load reaction counts for this sticker
                             const reactions = await getStickerReactionsAPI(data.id);
                             this.updateReactionCounts(data.id, reactions);
@@ -1296,15 +1296,15 @@
                 `;
 
                 this.container.appendChild(sticker);
-                this.stickers.push({ 
-                    id, 
-                    element: sticker, 
-                    type: apiData.type, 
-                    intensity: apiData.intensity.toString(), 
-                    text: apiData.text, 
-                    bodyPart: apiData.body_part, 
-                    category: apiData.category, 
-                    reactions: { same: 0, great: 0 } 
+                this.stickers.push({
+                    id,
+                    element: sticker,
+                    type: apiData.type,
+                    intensity: apiData.intensity.toString(),
+                    text: apiData.text,
+                    bodyPart: apiData.body_part,
+                    category: apiData.category,
+                    reactions: { same: 0, great: 0 }
                 });
 
                 // Start floating animation with random delay
@@ -1440,7 +1440,7 @@
                     };
 
                     const result = await createStickerAPI(stickerData);
-                    
+
                     if (result && result.id) {
                         // Create element with API data
                         const apiData = {
@@ -1454,7 +1454,7 @@
                             position_y: positionY,
                             rotation: rotation
                         };
-                        
+
                         this.createStickerElementFromAPI(apiData);
                         this.hideStickerModal();
                         this.showToast('✨ Sticker created successfully!');
@@ -1583,19 +1583,19 @@
                     this.draggedSticker.classList.remove('dragging');
                     // Resume floating animation after drag
                     this.draggedSticker.style.animationPlayState = 'running';
-                    
+
                     // Update position via API
                     const stickerId = this.draggedSticker.id;
                     const positionX = parseFloat(this.draggedSticker.style.left);
                     const positionY = parseFloat(this.draggedSticker.style.top);
                     const rotation = parseFloat(this.draggedSticker.dataset.rotation) || 0;
-                    
+
                     try {
                         await updateStickerPositionAPI(stickerId, positionX, positionY, rotation);
                     } catch (error) {
                         console.error('Failed to update sticker position:', error);
                     }
-                    
+
                     this.draggedSticker = null;
                     this.canvas.style.cursor = 'crosshair';
                 }
@@ -1632,19 +1632,19 @@
                     this.draggedSticker.classList.remove('dragging');
                     // Resume floating animation after drag
                     this.draggedSticker.style.animationPlayState = 'running';
-                    
+
                     // Update position via API
                     const stickerId = this.draggedSticker.id;
                     const positionX = parseFloat(this.draggedSticker.style.left);
                     const positionY = parseFloat(this.draggedSticker.style.top);
                     const rotation = parseFloat(this.draggedSticker.dataset.rotation) || 0;
-                    
+
                     try {
                         await updateStickerPositionAPI(stickerId, positionX, positionY, rotation);
                     } catch (error) {
                         console.error('Failed to update sticker position:', error);
                     }
-                    
+
                     this.draggedSticker = null;
                 }
             }
@@ -1704,7 +1704,7 @@
                 // Create connection via API
                 const sticker1Id = parseInt(sticker1.id);
                 const sticker2Id = parseInt(sticker2.id);
-                
+
                 try {
                     const success = await createConnectionAPI(sticker1Id, sticker2Id);
                     if (!success) {
@@ -1817,7 +1817,7 @@
                     // Delete connection via API
                     const sticker1Id = parseInt(connectionData.sticker1.id);
                     const sticker2Id = parseInt(connectionData.sticker2.id);
-                    
+
                     try {
                         const success = await deleteConnectionAPI(sticker1Id, sticker2Id);
                         if (success) {
@@ -1878,10 +1878,10 @@
                     if (success) {
                         // Increment reaction count
                         stickerData.reactions[reactionType]++;
-                        
+
                         // Update UI
                         this.updateReactionCounts(stickerId, stickerData.reactions);
-                        
+
                         // Show feedback animation
                         this.showReactionFeedback(stickerData.element, reactionType);
                     } else {
