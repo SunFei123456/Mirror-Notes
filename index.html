@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Reflect - An Artistic Journey</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Poppins:wght@300;400;500&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="styles/common.css" />
+</head>
+
+<body class="bg-background-start font-sans text-white antialiased">
+    <div class="relative min-h-screen w-full overflow-hidden">
+        <div class="absolute inset-0 transition-all duration-500 ease-in-out bg-cover bg-center bg-no-repeat"
+            id="dynamic-bg" style="background-image: url('images/home-bg.png')"></div>
+        <div class="absolute inset-0 bg-black/30"></div>
+        <header class="absolute top-0 left-0 right-0 z-50 px-6 sm:px-16 py-8 fade-in">
+            <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3 group">
+                    <div class="w-8 h-8 text-primary group-hover:text-secondary transition-colors duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm5 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-5.01-5.5c.98 0 1.83.61 2.21 1.5H9.8c.38-.89 1.23-1.5 2.21-1.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2
+                        class="text-3xl font-bold text-white font-display tracking-wider group-hover:text-primary transition-colors duration-300">
+                        Mirror Notes</h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-12">
+                    <a class="nav-link relative text-base font-light text-white/80 hover:text-white transition-colors"
+                        href="./message-wall.html">Wall</a>
+                    <a class="nav-link relative text-base font-light text-white/80 hover:text-white transition-colors"
+                        href="./solutions.html">Solutions</a>
+                    <a class="nav-link relative text-base font-light text-white/80 hover:text-white transition-colors"
+                        href="./community.html">Community</a>
+                    <a class="nav-link relative text-base font-light text-white/80 hover:text-white transition-colors"
+                        href="./about.html">About</a>
+                </nav>
+                <button class="md:hidden text-white">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <main class="relative z-10">
+            <section
+                class="min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-4 sm:px-6 text-center">
+                <div class="mx-auto" style="max-width: 1200px;">
+                    <h1
+                        class="font-display text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-white/70 leading-tight tracking-wide mb-8 opacity-0 fade-in fade-in-delay-1">
+                        Let's Talk About Appearance Anxiety
+                    </h1>
+                    <p
+                        class="max-w-3xl text-lg md:text-xl font-light leading-relaxed text-white/80 mb-12 mx-auto opacity-0 fade-in fade-in-delay-2">
+                        Everyone has insecurities. You're not alone. This platform invites you to anonymously share what
+                        you're anxious about in your appearance — and to see how many others feel the same. Here, your
+                        negative feelings may be someone else's dreams.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-6 justify-center opacity-0 fade-in fade-in-delay-3">
+                        <a class="btn-primary group relative inline-flex min-w-[220px] items-center justify-center rounded-full h-16 px-8 text-lg font-semibold shadow-lg"
+                            href="./message-wall.html">
+                            Share Your Thoughts
+                        </a>
+                        <a class="btn-secondary group relative inline-flex min-w-[220px] items-center justify-center rounded-full h-16 px-8 text-lg font-semibold shadow-lg"
+                            href="./solutions.html">
+                            Relief Solutions
+                        </a>
+                        <a class="btn-outline group relative inline-flex min-w-[220px] items-center justify-center rounded-full h-16 px-8 text-lg font-semibold"
+                            href="./community.html">
+                            Join Community
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+</body>
+
+</html>

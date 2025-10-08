@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Mirror Notes - Interactive Wall</title>
+    <meta name="description" content="Share your appearance anxiety, listen to others, and build emotional connections">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#9b59b6',
+                        secondary: '#e91e63',
+                        accent: '#3498db',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Poppins:wght@300;400;500&amp;family=Caveat:wght@400;500;600;700&amp;family=Patrick+Hand&amp;display=swap"
+        rel="stylesheet" />
+    <!-- Anime.js for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link rel="stylesheet" href="styles/common.css" />
+    <style>
+        .sticker {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+            user-select: none;
+            will-change: transform;
+            animation: stickerFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes stickerFloat {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-5px) rotate(1deg);
+            }
+
+            75% {
+                transform: translateY(5px) rotate(-1deg);
+            }
+        }
+
+        .sticker:hover {
+            transform: scale(1.08) rotate(-2deg) translateY(-5px) !important;
+            z-index: 10;
+            animation: none;
+        }
+
+        .sticker.selected {
+            transform: scale(1.12) rotate(3deg) !important;
+            filter: drop-shadow(0 10px 25px rgba(155, 89, 182, 0.4));
+            z-index: 15;
+            animation: none;
+        }
+
+        .sticker.dragging {
+            cursor: grabbing !important;
+            z-index: 20;
+            animation: none;
+        }
+
+        /* Sticker card styling */
+        .sticker-card {
+            position: relative;
+            font-family: 'Patrick Hand', 'Caveat', cursive;
+            box-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.05),
+                0 4px 8px rgba(0, 0, 0, 0.05),
+                0 8px 16px rgba(0, 0, 0, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .sticker-card::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sticker-card::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: inherit;
+            border-radius: inherit;
+            z-index: -1;
+            filter: blur(8px);
+            opacity: 0.3;
+        }
+
+        .connection-line {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.3s ease;
+        }
+
+        .canvas-grid {
+            background-image:
+                linear-gradient(rgba(156, 163, 175, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(156, 163, 175, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(155, 89, 182, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(155, 89, 182, 0);
+            }
+        }
+
+        .pulse-button {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Better text readability */
+        .sticker p {
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Better image rendering */
+        .sticker>div {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        /* Reaction animation */
+        @keyframes reactionPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translate(-50%, -70%) scale(1.5);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translate(-50%, -100%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Prevent text selection during drag */
+        .sticker * {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Modal intensity radio button styling */
+        .intensity-option:has(input:checked) {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.3));
+            border-color: #9b59b6 !important;
+            border-width: 3px;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        }
+
+        .intensity-option input[type="radio"] {
+            accent-color: #9b59b6;
+        }
+
+        /* Hide radio buttons on mobile for cleaner look */
+        @media (max-width: 640px) {
+            .intensity-option input[type="radio"] {
+                display: none;
+            }
+
+            .intensity-option:has(input:checked) {
+                background: linear-gradient(135deg, #9b59b6, #8e44ad);
+                color: white;
+                border-width: 3px;
+            }
+        }
+
+        /* Smooth scrolling for modal */
+        #sticker-modal {
+            backdrop-filter: blur(8px);
+        }
+
+        /* Enhanced modal styling */
+        #modal-content {
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Playful button styles */
+        #modal-create {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #modal-create::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        #modal-create:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Connection mode indicator animation */
+        #connection-mode {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        /* Intensity option hover effect */
+        .intensity-option {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .intensity-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.2);
+        }
+
+        /* Pulse animation for modal background transition */
+        @keyframes modalColorPulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.95;
+            }
+        }
+
+        /* Canvas grid enhancement */
+        .canvas-grid {
+            background-image:
+                radial-gradient(circle, rgba(156, 163, 175, 0.15) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Filter buttons */
+        .filter-category-btn,
+        .filter-intensity-btn {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .filter-category-btn.active,
+        .filter-intensity-btn.active {
+            transform: translateY(-2px);
+        }
+
+        .filter-category-btn:active,
+        .filter-intensity-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Filter bar scroll effect */
+        #filter-bar {
+            backdrop-filter: blur(10px);
+        }
+
+        /* Mobile responsive filters */
+        @media (max-width: 768px) {
+            #filter-bar {
+                top: 16rem;
+            }
+
+            main {
+                padding-top: 20rem !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased"
+    style="background: linear-gradient(135deg, #eaedf3 0%, #d7e2f7 25%, #cbdbfa 50%, #95afd8 75%, #9bbfee 100%);">
+    <div class="flex flex-col min-h-screen ">
+        <!-- Header -->
+        <header id="navbar"
+            class="fixed top-0 left-0 right-0 z-50 px-6 sm:px-16 py-6 transition-all duration-300 fade-in">
+            <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3 group">
+                    <div class="w-8 h-8 text-primary group-hover:text-secondary transition-colors duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm5 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-5.01-5.5c.98 0 1.83.61 2.21 1.5H9.8c.38-.89 1.23-1.5 2.21-1.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2
+                        class="text-3xl font-bold text-slate-800 font-display tracking-wider group-hover:text-primary transition-colors duration-300">
+                        Mirror Notes</h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-12">
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./index.html">Home</a>
+                    <a class="nav-link relative text-base font-light text-slate-900 font-medium transition-colors"
+                        href="./message-wall.html">Wall</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./solutions.html">Solutions</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./community.html">Community</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./about.html">About</a>
+                </nav>
+                <button class="md:hidden text-slate-800">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Filter Bar -->
+        <div id="filter-bar"
+            class="fixed top-20 left-0 right-0 z-40 bg-white/95 backdrop-blur-md shadow-lg border-b-2 border-primary/20 transition-all duration-300 pt-4">
+            <div class="max-w-screen-xl mx-auto px-6 sm:px-16 pb-4">
+                <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                    <!-- Category Filter -->
+                    <div class="flex-1 w-full lg:w-auto">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">📂 Filter by Category</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                class="filter-category-btn active px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-primary text-white shadow-md hover:shadow-lg"
+                                data-category="all">
+                                All
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="eyes">
+                                👁️ Eyes
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="nose">
+                                👃 Nose
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="mouth">
+                                👄 Mouth
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="skin">
+                                ✨ Skin
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="hair">
+                                💇 Hair
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="body">
+                                🧍 Body
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="face">
+                                😊 Face
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="other">
+                                📝 Other
+                            </button>
+                            <button
+                                class="filter-category-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-white text-slate-700 border-2 border-slate-200 hover:border-primary hover:text-primary"
+                                data-category="support">
+                                💚 Support
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Intensity Filter -->
+                    <div class="w-full lg:w-auto">
+                        <label class="block text-xs font-medium text-slate-600 mb-2">📊 Filter by Anxiety Level</label>
+                        <div class="flex gap-2">
+                            <button
+                                class="filter-intensity-btn active px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-primary text-white shadow-md hover:shadow-lg"
+                                data-intensity="all">
+                                All
+                            </button>
+                            <button
+                                class="filter-intensity-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-[#fff5f7] to-[#ffe4e9] text-slate-700 border-2 border-slate-200 hover:border-primary"
+                                data-intensity="1">
+                                1
+                            </button>
+                            <button
+                                class="filter-intensity-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-[#ffd6e0] to-[#ffb3c6] text-slate-700 border-2 border-slate-200 hover:border-primary"
+                                data-intensity="2">
+                                2
+                            </button>
+                            <button
+                                class="filter-intensity-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-[#ffabc1] to-[#ff85a1] text-white border-2 border-slate-200 hover:border-primary"
+                                data-intensity="3">
+                                3
+                            </button>
+                            <button
+                                class="filter-intensity-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-[#ff7a9a] to-[#ff5c7c] text-white border-2 border-slate-200 hover:border-primary"
+                                data-intensity="4">
+                                4
+                            </button>
+                            <button
+                                class="filter-intensity-btn px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-[#ff5c7c] to-[#ff4569] text-white border-2 border-slate-200 hover:border-primary"
+                                data-intensity="5">
+                                5
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filters Display -->
+                <div id="active-filters" class="mt-3 flex items-center gap-2 text-sm text-slate-600 hidden">
+                    <span class="font-medium">Active filters:</span>
+                    <div id="active-filters-list" class="flex gap-2"></div>
+                    <button id="clear-filters" class="ml-2 text-xs text-primary hover:text-primary/80 underline">Clear
+                        all</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas -->
+        <main class="flex-grow relative pt-48">
+            <div id="wall-canvas" class="absolute inset-0 cursor-crosshair overflow-hidden canvas-grid" tabindex="0">
+                <!-- SVG for connection lines -->
+                <svg id="connections-svg" class="absolute inset-0 pointer-events-none w-full h-full" style="z-index: 5;"
+                    preserveAspectRatio="none"></svg>
+
+                <!-- Stickers Container -->
+                <div id="stickers-container" class="absolute inset-0"></div>
+            </div>
+
+            <!-- Instructions Tooltip -->
+            <div id="instructions"
+                class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-sm rounded-2xl px-6 py-4 shadow-xl z-30 transition-all duration-300 max-w-md border-2 border-primary/20">
+                <div class="flex items-center gap-3">
+                    <div class="w-4 h-4 bg-primary rounded-full animate-pulse flex-shrink-0"></div>
+                    <div class="text-slate-700 text-sm font-['Patrick_Hand']">
+                        <span class="font-bold text-primary text-base">✨ Quick Guide:</span>
+                        <span class="hidden md:inline block mt-1">Click to create · Drag to move · Double-click to
+                            connect · Right-click line to delete · Hover to react</span>
+                        <span class="md:hidden block mt-1">Click · Drag · Double-click ✨</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connection Mode Indicator -->
+            <div id="connection-mode"
+                class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary to-secondary backdrop-blur-sm rounded-full px-8 py-4 shadow-2xl hidden z-30 border-2 border-white/30">
+                <div class="flex items-center gap-4">
+                    <div class="w-4 h-4 bg-white rounded-full animate-pulse"></div>
+                    <span class="text-white font-bold font-['Patrick_Hand'] text-lg">🔗 Connection Mode · Select second
+                        note</span>
+                    <button id="cancel-connection"
+                        class="text-white/90 hover:text-white hover:scale-110 transition-all ml-2 bg-white/20 rounded-full p-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Floating Action Buttons -->
+            <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-40">
+                <button id="submit-method-btn"
+                    class="w-14 h-14 bg-primary hover:bg-primary/90 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 pulse-button group relative"
+                    title="Submit Relief Method">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                        </path>
+                    </svg>
+                    <span
+                        class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        Submit Relief Method
+                    </span>
+                </button>
+
+                <button id="reset-btn"
+                    class="w-14 h-14 bg-orange-500 hover:bg-orange-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 group relative"
+                    title="Reset All Notes">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                    <span
+                        class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        Reset All Notes
+                    </span>
+                </button>
+
+                <button id="home-btn"
+                    class="w-14 h-14 bg-secondary hover:bg-secondary/90 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 group relative"
+                    title="Back to Home">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                        </path>
+                    </svg>
+                    <span
+                        class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        Back to Home
+                    </span>
+                </button>
+
+                <a href="./about.html" id="about-btn"
+                    class="w-14 h-14 bg-accent hover:bg-accent/90 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 group relative"
+                    title="About Project">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span
+                        class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        About Project
+                    </span>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Sticker Creation Modal -->
+    <div id="sticker-modal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="rounded-2xl shadow-2xl max-w-lg w-full mx-auto my-8 transform transition-all duration-300 scale-95 opacity-0 p-6"
+            id="modal-content"
+            style="background: linear-gradient(135deg, #ffabc1 0%, #ff85a1 100%); transition: all 0.3s ease, background 0.5s ease;">
+            <div class="bg-white/60 backdrop-blur-md rounded-xl p-6 shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center gap-3">
+                        <h3 class="text-lg font-semibold text-slate-800">Create Note</h3>
+                        <div
+                            class="flex items-center gap-2 px-3 py-1 bg-white/80 rounded-full border-2 border-slate-200">
+                            <span class="text-xs text-slate-600 font-medium">Preview:</span>
+                            <div id="color-preview-dot"
+                                class="w-6 h-6 rounded-full border-2 border-white shadow-md transition-all duration-500"
+                                style="background: linear-gradient(135deg, #ffabc1 0%, #ff85a1 100%);"></div>
+                        </div>
+                    </div>
+                    <button id="close-modal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Type</label>
+                        <select id="sticker-type"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary">
+                            <option value="anxiety">😟 Anxiety</option>
+                            <option value="support">💚 Support</option>
+                        </select>
+                    </div>
+                    <div id="anxiety-fields">
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Category</label>
+                            <select id="sticker-category"
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary">
+                                <option value="eyes">👁️ Eyes</option>
+                                <option value="nose">👃 Nose</option>
+                                <option value="mouth">👄 Mouth</option>
+                                <option value="skin">✨ Skin</option>
+                                <option value="hair">💇 Hair</option>
+                                <option value="body">🧍 Body Shape</option>
+                                <option value="face">😊 Face Shape</option>
+                                <option value="other">📝 Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Body Part Concern</label>
+                            <input id="sticker-bodypart" type="text" maxlength="30"
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary"
+                                placeholder="e.g., 'My nose', 'Acne scars'">
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Anxiety Level (1-5)
+                                <span class="text-xs text-slate-500 ml-2">· Watch the border color change!</span>
+                            </label>
+                            <!-- Color Preview Bar -->
+                            <div class="mb-3 flex gap-1 h-2 rounded-full overflow-hidden">
+                                <div class="flex-1 bg-gradient-to-r from-[#fff5f7] to-[#ffe4e9]"></div>
+                                <div class="flex-1 bg-gradient-to-r from-[#ffd6e0] to-[#ffb3c6]"></div>
+                                <div class="flex-1 bg-gradient-to-r from-[#ffabc1] to-[#ff85a1]"></div>
+                                <div class="flex-1 bg-gradient-to-r from-[#ff7a9a] to-[#ff5c7c]"></div>
+                                <div class="flex-1 bg-gradient-to-r from-[#ff5c7c] to-[#ff4569]"></div>
+                            </div>
+                            <div class="grid grid-cols-5 gap-2">
+                                <label
+                                    class="intensity-option flex items-center justify-center py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition-all hover:border-primary">
+                                    <input type="radio" name="intensity" value="1" class="mr-1">
+                                    <span class="text-sm">1</span>
+                                </label>
+                                <label
+                                    class="intensity-option flex items-center justify-center py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition-all hover:border-primary">
+                                    <input type="radio" name="intensity" value="2" class="mr-1">
+                                    <span class="text-sm">2</span>
+                                </label>
+                                <label
+                                    class="intensity-option flex items-center justify-center py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition-all hover:border-primary">
+                                    <input type="radio" name="intensity" value="3" class="mr-1" checked>
+                                    <span class="text-sm">3</span>
+                                </label>
+                                <label
+                                    class="intensity-option flex items-center justify-center py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition-all hover:border-primary">
+                                    <input type="radio" name="intensity" value="4" class="mr-1">
+                                    <span class="text-sm">4</span>
+                                </label>
+                                <label
+                                    class="intensity-option flex items-center justify-center py-2 border-2 border-slate-300 rounded-lg cursor-pointer transition-all hover:border-primary">
+                                    <input type="radio" name="intensity" value="5" class="mr-1">
+                                    <span class="text-sm">5</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Description</label>
+                        <textarea id="sticker-text" rows="3" maxlength="150"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary resize-none"
+                            placeholder="Describe your feelings in detail (max 150 characters)" autofocus></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button id="modal-cancel"
+                        class="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors">Cancel</button>
+                    <button id="modal-create"
+                        class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial stickers data
+        const initialStickers = [
+            { text: 'It feels too large and affects my confidence', bodyPart: 'My nose', category: 'nose', type: 'anxiety', intensity: '5', top: '20%', left: '10%' },
+            { text: 'The scars on my face make me feel self-conscious', bodyPart: 'Acne scars', category: 'skin', type: 'anxiety', intensity: '4', top: '50%', left: '30%' },
+            { text: 'My hair never looks the way I want it to', bodyPart: 'Frizzy hair', category: 'hair', type: 'anxiety', intensity: '2', top: '10%', left: '55%' },
+            { text: "You're beautiful just the way you are", type: 'support', intensity: '3', top: '60%', left: '70%' },
+            { text: 'My teeth are not straight and I feel embarrassed', bodyPart: 'Crooked teeth', category: 'mouth', type: 'anxiety', intensity: '5', top: '35%', left: '50%' },
+            { text: 'I feel uncomfortable with my body proportions', bodyPart: 'Body shape', category: 'body', type: 'anxiety', intensity: '4', top: '75%', left: '5%' },
+            { text: 'I understand how you feel, we all have insecurities', type: 'support', intensity: '2', top: '5%', left: '25%' },
+            { text: 'People always comment on my ears', bodyPart: 'Big ears', category: 'other', type: 'anxiety', intensity: '2', top: '80%', left: '45%' },
+            { text: 'My eyes look different from each other', bodyPart: 'Asymmetrical eyes', category: 'eyes', type: 'anxiety', intensity: '3', top: '40%', left: '2%' },
+            { text: 'Your smile lights up the room, never hide it', type: 'support', intensity: '4', top: '70%', left: '82%' },
+            { text: 'My hairline is receding and I feel older', bodyPart: 'Receding hairline', category: 'hair', type: 'anxiety', intensity: '5', top: '15%', left: '75%' },
+            { text: 'My skin tone is uneven and I feel less attractive', bodyPart: 'Dull skin', category: 'skin', type: 'anxiety', intensity: '2', top: '65%', left: '50%' }
+        ];
+
+        class InteractiveWall {
+            constructor() {
+                this.canvas = document.getElementById('wall-canvas');
+                this.container = document.getElementById('stickers-container');
+                this.svgContainer = document.getElementById('connections-svg');
+                this.stickers = [];
+                this.connections = [];
+                this.isConnecting = false;
+                this.selectedStickers = [];
+                this.draggedSticker = null;
+                this.dragOffset = { x: 0, y: 0 };
+                this.stickerIdCounter = 0;
+
+                // Filter state
+                this.activeFilters = {
+                    category: 'all',
+                    intensity: 'all'
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadStickersFromStorage();
+                this.hideInstructionsAfterDelay();
+                this.updateSVGSize();
+
+                // Update SVG size on window resize
+                window.addEventListener('resize', () => {
+                    this.updateSVGSize();
+                    this.updateConnections();
+                });
+            }
+
+            updateSVGSize() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.svgContainer.setAttribute('width', rect.width);
+                this.svgContainer.setAttribute('height', rect.height);
+                this.svgContainer.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+            }
+
+            loadStickersFromStorage() {
+                const savedStickers = localStorage.getItem('mirrorNotes_stickers');
+                const savedConnections = localStorage.getItem('mirrorNotes_connections');
+
+                if (savedStickers) {
+                    const stickers = JSON.parse(savedStickers);
+
+                    // Find the highest existing sticker ID to avoid conflicts
+                    let maxId = 0;
+                    stickers.forEach(data => {
+                        const idMatch = data.id.match(/sticker-(\d+)/);
+                        if (idMatch) {
+                            const idNum = parseInt(idMatch[1]);
+                            maxId = Math.max(maxId, idNum);
+                        }
+                    });
+                    this.stickerIdCounter = maxId + 1;
+
+                    stickers.forEach(data => {
+                        const sticker = this.createStickerElement(
+                            data.text,
+                            data.type,
+                            data.intensity,
+                            data.top,
+                            data.left,
+                            data.bodyPart || '',
+                            data.category || '',
+                            data.id, // Preserve original ID
+                            true // Skip entrance animation for loaded stickers
+                        );
+                        // Update reaction counts
+                        if (data.reactions) {
+                            this.updateReactionCounts(data.id, data.reactions);
+                        }
+                    });
+
+                    // Restore connections
+                    if (savedConnections) {
+                        const connections = JSON.parse(savedConnections);
+                        setTimeout(() => {
+                            connections.forEach(conn => {
+                                const sticker1 = this.stickers.find(s => s.id === conn.sticker1Id);
+                                const sticker2 = this.stickers.find(s => s.id === conn.sticker2Id);
+                                if (sticker1 && sticker2) {
+                                    // Create connection without showing toast during load
+                                    const savedCreateConnection = this.createConnection.bind(this);
+                                    const tempShowToast = this.showToast;
+                                    this.showToast = () => { }; // Temporarily disable toast
+                                    savedCreateConnection(sticker1.element, sticker2.element);
+                                    this.showToast = tempShowToast; // Restore toast
+                                }
+                            });
+                        }, 100);
+                    }
+                } else {
+                    // Load initial stickers if no saved data (with animation)
+                    initialStickers.forEach(data => {
+                        this.createStickerElement(
+                            data.text,
+                            data.type,
+                            data.intensity,
+                            data.top,
+                            data.left,
+                            data.bodyPart || '',
+                            data.category || '',
+                            null, // Generate new ID
+                            false // Show entrance animation for first-time visitors
+                        );
+                    });
+                }
+            }
+
+            saveStickersToStorage() {
+                const stickersData = this.stickers.map(s => ({
+                    id: s.id,
+                    text: s.text,
+                    type: s.type,
+                    intensity: s.intensity,
+                    bodyPart: s.bodyPart || '',
+                    category: s.category || '',
+                    top: s.element.style.top,
+                    left: s.element.style.left,
+                    reactions: s.reactions || { same: 0, great: 0 }
+                }));
+                localStorage.setItem('mirrorNotes_stickers', JSON.stringify(stickersData));
+
+                // Save connections
+                const connectionsData = this.connections.map(conn => ({
+                    sticker1Id: conn.sticker1.id,
+                    sticker2Id: conn.sticker2.id
+                }));
+                localStorage.setItem('mirrorNotes_connections', JSON.stringify(connectionsData));
+            }
+
+            hideInstructionsAfterDelay() {
+                setTimeout(() => {
+                    const instructions = document.getElementById('instructions');
+                    instructions.style.opacity = '0';
+                    setTimeout(() => instructions.style.display = 'none', 300);
+                }, 5000);
+            }
+
+            setupEventListeners() {
+                // Canvas click to create sticker
+                this.canvas.addEventListener('click', (e) => {
+                    if (e.target === this.canvas || e.target === this.container) {
+                        this.showStickerModal(e.clientX, e.clientY);
+                    }
+                });
+
+                // Drag events
+                this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+                this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+
+                // Touch events for mobile
+                this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+                this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+                this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this));
+
+                // Double click to connect
+                this.canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
+
+                // Keyboard shortcuts
+                this.canvas.addEventListener('keydown', this.handleKeyDown.bind(this));
+
+                // Modal events
+                this.setupModalEvents();
+
+                // Floating button events
+                this.setupFloatingButtonEvents();
+            }
+
+            handleKeyDown(e) {
+                if (e.key === 'Escape') {
+                    // Check if modal is open first
+                    const modal = document.getElementById('sticker-modal');
+                    if (modal && !modal.classList.contains('hidden')) {
+                        this.hideStickerModal();
+                    } else if (this.isConnecting) {
+                        this.exitConnectionMode();
+                    }
+                }
+            }
+
+            showStickerModal(x, y) {
+                this.modalPosition = { x, y };
+                const modal = document.getElementById('sticker-modal');
+                const content = document.getElementById('modal-content');
+                const input = document.getElementById('sticker-text');
+                const bodyPartInput = document.getElementById('sticker-bodypart');
+                const typeSelect = document.getElementById('sticker-type');
+                const anxietyFields = document.getElementById('anxiety-fields');
+
+                // Reset form
+                input.value = '';
+                if (bodyPartInput) bodyPartInput.value = '';
+                typeSelect.value = 'anxiety';
+
+                // Reset intensity to level 3
+                const intensity3 = document.querySelector('input[name="intensity"][value="3"]');
+                if (intensity3) intensity3.checked = true;
+
+                // Show/hide anxiety fields based on type
+                if (typeSelect.value === 'anxiety') {
+                    anxietyFields.style.display = 'block';
+                } else {
+                    anxietyFields.style.display = 'none';
+                }
+
+                // Update modal background to match default settings (anxiety, level 3)
+                const defaultBgColor = this.getBackgroundColor('anxiety', '3');
+                content.style.background = defaultBgColor;
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                    input.focus();
+                }, 10);
+            }
+
+            hideStickerModal() {
+                const modal = document.getElementById('sticker-modal');
+                const content = document.getElementById('modal-content');
+
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+
+            createStickerElement(text, type, intensity, top, left, bodyPart = '', category = '', existingId = null, skipAnimation = false) {
+                const id = existingId || `sticker-${this.stickerIdCounter++}`;
+                const sticker = document.createElement('div');
+                sticker.className = 'sticker draggable absolute cursor-move';
+                sticker.id = id;
+                sticker.dataset.type = type;
+                sticker.dataset.intensity = intensity;
+                sticker.dataset.text = text;
+                sticker.dataset.bodypart = bodyPart || '';
+                sticker.dataset.category = category || '';
+                sticker.style.top = top;
+                sticker.style.left = left;
+                sticker.tabIndex = 0;
+
+                const bgColor = this.getBackgroundColor(type, intensity);
+                const size = this.getSize(intensity);
+                const fontSize = this.getFontSize(intensity);
+                const categoryLabel = this.getCategoryLabel(category);
+                const decoEmoji = this.getDecoEmoji(type, category);
+                const categoryTag = category ? `
+                    <div class="absolute top-3 left-3 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-xs font-medium text-slate-700 z-10 shadow-sm border border-white/50">
+                        ${categoryLabel}
+                    </div>
+                ` : '';
+                const bodyPartDisplay = bodyPart ? `<div class="font-bold mb-2 text-lg tracking-wide">${bodyPart}</div>` : '';
+
+                // Random rotation for that natural sticky note feel
+                const randomRotation = (Math.random() - 0.5) * 6;
+                sticker.dataset.rotation = randomRotation; // Store for later use
+
+                sticker.innerHTML = `
+                    <div class="sticker-card ${size} relative overflow-visible group flex flex-col items-center justify-center p-5 rounded-2xl" style="background: ${bgColor}; transform: rotate(${randomRotation}deg);">
+                        ${categoryTag}
+                        
+                        <!-- Decorative emoji -->
+                        <div class="absolute bottom-3 right-3 text-3xl opacity-20 pointer-events-none">${decoEmoji}</div>
+                        
+                        <!-- Content -->
+                        <div class="${fontSize} text-center text-slate-800 relative z-10 px-2 leading-relaxed">
+                            ${bodyPartDisplay}
+                            <p class="line-clamp-3 italic">${text}</p>
+                        </div>
+                        
+                        <!-- Delete button -->
+                        <button class="delete-btn absolute -top-2 -right-2 w-7 h-7 bg-white hover:bg-red-50 text-red-500 hover:text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-20 shadow-lg border-2 border-red-200 hover:scale-110" title="Delete Note">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Reaction buttons -->
+                        <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 scale-90 group-hover:scale-100">
+                            <button class="reaction-btn feel-same bg-white hover:bg-blue-50 px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:text-blue-600 hover:scale-110 transition-all flex items-center gap-1 shadow-lg border border-slate-200" data-reaction="same" title="I feel the same">
+                                <span>🤝</span>
+                                <span class="reaction-count font-semibold">0</span>
+                            </button>
+                            <button class="reaction-btn look-great bg-white hover:bg-green-50 px-3 py-1.5 rounded-full text-sm font-medium text-slate-700 hover:text-green-600 hover:scale-110 transition-all flex items-center gap-1 shadow-lg border border-slate-200" data-reaction="great" title="You look great">
+                                <span>💚</span>
+                                <span class="reaction-count font-semibold">0</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                this.container.appendChild(sticker);
+                this.stickers.push({ id, element: sticker, type, intensity, text, bodyPart, category, reactions: { same: 0, great: 0 } });
+
+                // Entrance animation with anime.js (only for new stickers)
+                if (!skipAnimation && typeof anime !== 'undefined') {
+                    // Temporarily disable floating animation during entrance
+                    sticker.style.animation = 'none';
+                    anime({
+                        targets: sticker,
+                        scale: [0, 1],
+                        rotate: [randomRotation - 180, randomRotation],
+                        opacity: [0, 1],
+                        duration: 800,
+                        easing: 'easeOutElastic(1, .8)',
+                        complete: () => {
+                            // Start floating animation after entrance
+                            sticker.style.animation = 'stickerFloat 6s ease-in-out infinite';
+                            // Random delay for more natural feel
+                            sticker.style.animationDelay = `${Math.random() * 2}s`;
+                        }
+                    });
+                } else if (skipAnimation) {
+                    // For loaded stickers, start floating immediately with random delay
+                    sticker.style.animationDelay = `${Math.random() * 2}s`;
+                }
+
+                // Add delete button listener
+                const deleteBtn = sticker.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.deleteSticker(id);
+                });
+
+                // Add reaction button listeners
+                const reactionButtons = sticker.querySelectorAll('.reaction-btn');
+                reactionButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.handleReaction(id, btn.dataset.reaction);
+                    });
+                });
+
+                return sticker;
+            }
+
+            createSticker(text, type, intensity, bodyPart = '', category = '') {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = ((this.modalPosition.x - rect.left) / rect.width) * 100;
+                const y = ((this.modalPosition.y - rect.top) / rect.height) * 100;
+
+                const top = Math.max(5, Math.min(95, y)) + '%';
+                const left = Math.max(5, Math.min(95, x)) + '%';
+
+                this.createStickerElement(text, type, intensity, top, left, bodyPart, category);
+                this.hideStickerModal();
+
+                // Save after creating new sticker
+                this.saveStickersToStorage();
+            }
+
+            getBackgroundColor(type, intensity) {
+                if (type === 'anxiety') {
+                    // Anxiety colors: warmer, softer tones
+                    const colors = {
+                        '1': 'linear-gradient(135deg, #fff5f7 0%, #ffe4e9 100%)', // Very light rose
+                        '2': 'linear-gradient(135deg, #ffd6e0 0%, #ffb3c6 100%)', // Soft pink
+                        '3': 'linear-gradient(135deg, #ffabc1 0%, #ff85a1 100%)', // Warm pink
+                        '4': 'linear-gradient(135deg, #ff7a9a 0%, #ff5c7c 100%)', // Coral pink
+                        '5': 'linear-gradient(135deg, #ff5c7c 0%, #ff4569 100%)'  // Vibrant coral
+                    };
+                    return colors[intensity] || colors['3'];
+                } else {
+                    // Support stickers use calming pastel tones
+                    const colors = {
+                        '1': 'linear-gradient(135deg, #f0fdf9 0%, #e0f7f0 100%)', // Mint
+                        '2': 'linear-gradient(135deg, #d1f4e8 0%, #b8eed8 100%)', // Light mint
+                        '3': 'linear-gradient(135deg, #a7e9ce 0%, #7eddb8 100%)', // Soft green
+                        '4': 'linear-gradient(135deg, #6ed9b0 0%, #4ecf9d 100%)', // Fresh green
+                        '5': 'linear-gradient(135deg, #4ecf9d 0%, #3ec593 100%)'  // Vibrant green
+                    };
+                    return colors[intensity] || colors['3'];
+                }
+            }
+
+            getDecoEmoji(type, category) {
+                if (type === 'support') {
+                    const emojis = ['✨', '💝', '🌟', '💫', '🌈', '🦋', '🌸'];
+                    return emojis[Math.floor(Math.random() * emojis.length)];
+                } else {
+                    const categoryEmojis = {
+                        'eyes': '👀',
+                        'nose': '👃',
+                        'mouth': '💋',
+                        'skin': '✨',
+                        'hair': '💇',
+                        'body': '🫂',
+                        'face': '😊',
+                        'other': '💭'
+                    };
+                    return categoryEmojis[category] || '💭';
+                }
+            }
+
+            getCategoryLabel(category) {
+                const labels = {
+                    'eyes': '👁️ Eyes',
+                    'nose': '👃 Nose',
+                    'mouth': '👄 Mouth',
+                    'skin': '✨ Skin',
+                    'hair': '💇 Hair',
+                    'body': '🧍 Body',
+                    'face': '😊 Face',
+                    'other': '📝 Other',
+                    'support': '💚 Support'
+                };
+                return labels[category] || category;
+            }
+
+            getSize(intensity) {
+                const sizes = {
+                    '1': 'w-40 h-28',
+                    '2': 'w-42 h-30',
+                    '3': 'w-44 h-32',
+                    '4': 'w-48 h-36',
+                    '5': 'w-52 h-40'
+                };
+                return sizes[intensity] || sizes['3'];
+            }
+
+            getFontSize(intensity) {
+                const sizes = {
+                    '1': 'text-xs',
+                    '2': 'text-xs',
+                    '3': 'text-sm',
+                    '4': 'text-sm',
+                    '5': 'text-base'
+                };
+                return sizes[intensity] || sizes['3'];
+            }
+
+            handleMouseDown(e) {
+                const sticker = e.target.closest('.sticker');
+                if (!sticker) return;
+
+                e.preventDefault();
+                this.draggedSticker = sticker;
+
+                const rect = sticker.getBoundingClientRect();
+                this.dragOffset.x = e.clientX - rect.left;
+                this.dragOffset.y = e.clientY - rect.top;
+
+                sticker.classList.add('dragging');
+                this.canvas.style.cursor = 'grabbing';
+
+                // Pause floating animation during drag
+                this.draggedSticker.style.animationPlayState = 'paused';
+            }
+
+            handleMouseMove(e) {
+                if (!this.draggedSticker) return;
+
+                e.preventDefault();
+                this.updateStickerPosition(e.clientX, e.clientY);
+                this.updateConnections();
+            }
+
+            handleMouseUp() {
+                if (this.draggedSticker) {
+                    this.draggedSticker.classList.remove('dragging');
+                    // Resume floating animation after drag
+                    this.draggedSticker.style.animationPlayState = 'running';
+                    this.draggedSticker = null;
+                    this.canvas.style.cursor = 'crosshair';
+                    // Save position after drag
+                    this.saveStickersToStorage();
+                }
+            }
+
+            handleTouchStart(e) {
+                const sticker = e.target.closest('.sticker');
+                if (!sticker) return;
+
+                e.preventDefault();
+                const touch = e.touches[0];
+                this.draggedSticker = sticker;
+
+                const rect = sticker.getBoundingClientRect();
+                this.dragOffset.x = touch.clientX - rect.left;
+                this.dragOffset.y = touch.clientY - rect.top;
+
+                sticker.classList.add('dragging');
+                // Pause floating animation during drag
+                this.draggedSticker.style.animationPlayState = 'paused';
+            }
+
+            handleTouchMove(e) {
+                if (!this.draggedSticker) return;
+
+                e.preventDefault();
+                const touch = e.touches[0];
+                this.updateStickerPosition(touch.clientX, touch.clientY);
+                this.updateConnections();
+            }
+
+            handleTouchEnd() {
+                if (this.draggedSticker) {
+                    this.draggedSticker.classList.remove('dragging');
+                    // Resume floating animation after drag
+                    this.draggedSticker.style.animationPlayState = 'running';
+                    this.draggedSticker = null;
+                    // Save position after drag
+                    this.saveStickersToStorage();
+                }
+            }
+
+            updateStickerPosition(clientX, clientY) {
+                const canvasRect = this.canvas.getBoundingClientRect();
+                const x = ((clientX - canvasRect.left - this.dragOffset.x) / canvasRect.width) * 100;
+                const y = ((clientY - canvasRect.top - this.dragOffset.y) / canvasRect.height) * 100;
+
+                this.draggedSticker.style.left = Math.max(0, Math.min(95, x)) + '%';
+                this.draggedSticker.style.top = Math.max(0, Math.min(95, y)) + '%';
+            }
+
+            handleDoubleClick(e) {
+                const sticker = e.target.closest('.sticker');
+                if (!sticker) return;
+
+                e.preventDefault();
+
+                if (this.isConnecting) {
+                    if (this.selectedStickers[0].id !== sticker.id) {
+                        this.selectedStickers.push(sticker);
+                        this.createConnection(this.selectedStickers[0], this.selectedStickers[1]);
+                        this.exitConnectionMode();
+                    }
+                } else {
+                    this.enterConnectionMode();
+                    this.selectedStickers = [sticker];
+                    sticker.classList.add('selected');
+                }
+            }
+
+            enterConnectionMode() {
+                this.isConnecting = true;
+                document.getElementById('connection-mode').classList.remove('hidden');
+            }
+
+            exitConnectionMode() {
+                this.isConnecting = false;
+                this.selectedStickers.forEach(s => s.classList.remove('selected'));
+                this.selectedStickers = [];
+                document.getElementById('connection-mode').classList.add('hidden');
+            }
+
+            createConnection(sticker1, sticker2) {
+                // Check if connection already exists
+                const exists = this.connections.some(conn =>
+                    (conn.sticker1 === sticker1 && conn.sticker2 === sticker2) ||
+                    (conn.sticker1 === sticker2 && conn.sticker2 === sticker1)
+                );
+
+                if (exists) {
+                    this.showToast('Connection already exists');
+                    return;
+                }
+
+                // Get sticker types for connection color
+                const type1 = sticker1.dataset.type;
+                const type2 = sticker2.dataset.type;
+
+                // Create a group for the connection (invisible hit area + visible line)
+                const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                // Invisible thick line for easier clicking
+                const hitArea = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                const visibleLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+
+                const coords = this.getConnectionCoords(sticker1, sticker2);
+
+                // Set attributes for both lines
+                [hitArea, visibleLine].forEach(line => {
+                    line.setAttribute('x1', coords.x1);
+                    line.setAttribute('y1', coords.y1);
+                    line.setAttribute('x2', coords.x2);
+                    line.setAttribute('y2', coords.y2);
+                });
+
+                // Hit area (invisible, thick)
+                hitArea.setAttribute('stroke', 'transparent');
+                hitArea.setAttribute('stroke-width', '20');
+                hitArea.setAttribute('cursor', 'pointer');
+                hitArea.style.pointerEvents = 'stroke';
+
+                // Visible line - more colorful and playful
+                const connectionColor = type1 === 'anxiety' && type2 === 'support' ? '#ff69b4' : '#9b59b6';
+                visibleLine.setAttribute('stroke', connectionColor);
+                visibleLine.setAttribute('stroke-width', '4');
+                visibleLine.setAttribute('stroke-dasharray', '10,5');
+                visibleLine.setAttribute('stroke-linecap', 'round');
+                visibleLine.setAttribute('opacity', '0.8');
+                visibleLine.style.pointerEvents = 'none';
+                visibleLine.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))';
+
+                group.appendChild(hitArea);
+                group.appendChild(visibleLine);
+                group.classList.add('connection-line');
+
+                const connectionData = {
+                    element: group,
+                    hitArea: hitArea,
+                    visibleLine: visibleLine,
+                    sticker1: sticker1,
+                    sticker2: sticker2
+                };
+
+                // Add hover effect with animation
+                hitArea.addEventListener('mouseenter', () => {
+                    if (typeof anime !== 'undefined') {
+                        anime({
+                            targets: visibleLine,
+                            strokeWidth: 6,
+                            opacity: 1,
+                            duration: 200,
+                            easing: 'easeOutQuad'
+                        });
+                    } else {
+                        visibleLine.setAttribute('stroke-width', '6');
+                        visibleLine.setAttribute('opacity', '1');
+                    }
+                });
+                hitArea.addEventListener('mouseleave', () => {
+                    if (typeof anime !== 'undefined') {
+                        anime({
+                            targets: visibleLine,
+                            strokeWidth: 4,
+                            opacity: 0.8,
+                            duration: 200,
+                            easing: 'easeOutQuad'
+                        });
+                    } else {
+                        visibleLine.setAttribute('stroke-width', '4');
+                        visibleLine.setAttribute('opacity', '0.8');
+                    }
+                });
+
+                // Right-click to delete connection
+                hitArea.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    if (confirm('Delete this connection?')) {
+                        this.deleteConnection(connectionData);
+                    }
+                });
+
+                this.svgContainer.appendChild(group);
+                this.connections.push(connectionData);
+
+                // Save connections
+                this.saveStickersToStorage();
+
+                // Show feedback
+                this.showToast('Connection created');
+            }
+
+            deleteConnection(connectionData) {
+                const index = this.connections.indexOf(connectionData);
+                if (index > -1) {
+                    connectionData.element.remove();
+                    this.connections.splice(index, 1);
+                    this.saveStickersToStorage();
+                    this.showToast('Connection deleted');
+                }
+            }
+
+            getConnectionCoords(sticker1, sticker2) {
+                const rect1 = sticker1.getBoundingClientRect();
+                const rect2 = sticker2.getBoundingClientRect();
+                const canvasRect = this.canvas.getBoundingClientRect();
+
+                return {
+                    x1: rect1.left + rect1.width / 2 - canvasRect.left,
+                    y1: rect1.top + rect1.height / 2 - canvasRect.top,
+                    x2: rect2.left + rect2.width / 2 - canvasRect.left,
+                    y2: rect2.top + rect2.height / 2 - canvasRect.top
+                };
+            }
+
+            updateConnections() {
+                this.connections.forEach(conn => {
+                    const coords = this.getConnectionCoords(conn.sticker1, conn.sticker2);
+                    // Update both hit area and visible line
+                    conn.hitArea.setAttribute('x1', coords.x1);
+                    conn.hitArea.setAttribute('y1', coords.y1);
+                    conn.hitArea.setAttribute('x2', coords.x2);
+                    conn.hitArea.setAttribute('y2', coords.y2);
+
+                    conn.visibleLine.setAttribute('x1', coords.x1);
+                    conn.visibleLine.setAttribute('y1', coords.y1);
+                    conn.visibleLine.setAttribute('x2', coords.x2);
+                    conn.visibleLine.setAttribute('y2', coords.y2);
+                });
+            }
+
+            handleReaction(stickerId, reactionType) {
+                const stickerData = this.stickers.find(s => s.id === stickerId);
+                if (!stickerData) return;
+
+                // Initialize reactions if not exists
+                if (!stickerData.reactions) {
+                    stickerData.reactions = { same: 0, great: 0 };
+                }
+
+                // Increment reaction count
+                stickerData.reactions[reactionType]++;
+
+                // Update UI
+                this.updateReactionCounts(stickerId, stickerData.reactions);
+
+                // Save to localStorage
+                this.saveStickersToStorage();
+
+                // Show feedback animation
+                this.showReactionFeedback(stickerData.element, reactionType);
+            }
+
+            updateReactionCounts(stickerId, reactions) {
+                const stickerData = this.stickers.find(s => s.id === stickerId);
+                if (!stickerData) return;
+
+                const stickerElement = stickerData.element;
+                const sameBtn = stickerElement.querySelector('[data-reaction="same"] .reaction-count');
+                const greatBtn = stickerElement.querySelector('[data-reaction="great"] .reaction-count');
+
+                if (sameBtn) sameBtn.textContent = reactions.same || 0;
+                if (greatBtn) greatBtn.textContent = reactions.great || 0;
+
+                // Update stored reactions
+                stickerData.reactions = reactions;
+            }
+
+            showReactionFeedback(stickerElement, reactionType) {
+                const emoji = reactionType === 'same' ? '🤝' : '💚';
+                const feedback = document.createElement('div');
+                feedback.className = 'absolute text-4xl pointer-events-none font-bold';
+                feedback.style.cssText = `
+                    top: 50%;
+                    left: 50%;
+                    z-index: 100;
+                `;
+                feedback.textContent = emoji;
+
+                stickerElement.appendChild(feedback);
+
+                // Anime.js animation for more playful effect
+                if (typeof anime !== 'undefined') {
+                    anime({
+                        targets: feedback,
+                        translateX: ['-50%', '-50%'],
+                        translateY: ['-50%', '-200%'],
+                        scale: [0.5, 2],
+                        rotate: [0, 360],
+                        opacity: [1, 0],
+                        duration: 1200,
+                        easing: 'easeOutExpo',
+                        complete: () => feedback.remove()
+                    });
+                } else {
+                    // Fallback to CSS animation
+                    feedback.style.animation = 'reactionPop 0.8s ease-out forwards';
+                    setTimeout(() => feedback.remove(), 800);
+                }
+            }
+
+            deleteSticker(stickerId) {
+                const index = this.stickers.findIndex(s => s.id === stickerId);
+                if (index === -1) return;
+
+                const stickerData = this.stickers[index];
+
+                // Get current rotation from dataset
+                const currentRotation = parseFloat(stickerData.element.dataset.rotation) || 0;
+
+                // Remove element with playful 720° rotation animation
+                if (typeof anime !== 'undefined') {
+                    // Pause floating animation first
+                    stickerData.element.style.animation = 'none';
+
+                    anime({
+                        targets: stickerData.element,
+                        scale: [1, 0],
+                        rotate: [currentRotation, currentRotation + 720], // Rotate 720° from current angle
+                        opacity: [1, 0],
+                        duration: 800,
+                        easing: 'easeInExpo',
+                        complete: () => {
+                            // Remove from DOM
+                            stickerData.element.remove();
+
+                            // Remove from stickers array
+                            this.stickers.splice(index, 1);
+
+                            // Remove connections involving this sticker
+                            this.connections = this.connections.filter(conn => {
+                                if (conn.sticker1.id === stickerId || conn.sticker2.id === stickerId) {
+                                    conn.element.remove();
+                                    return false;
+                                }
+                                return true;
+                            });
+
+                            // Save changes
+                            this.saveStickersToStorage();
+                        }
+                    });
+                } else {
+                    // Fallback CSS animation
+                    stickerData.element.style.animation = 'none';
+                    stickerData.element.style.transition = 'all 0.5s ease-in';
+                    stickerData.element.style.transform = `scale(0) rotate(${currentRotation + 720}deg)`;
+                    stickerData.element.style.opacity = '0';
+
+                    setTimeout(() => {
+                        stickerData.element.remove();
+                        this.stickers.splice(index, 1);
+                        this.connections = this.connections.filter(conn => {
+                            if (conn.sticker1.id === stickerId || conn.sticker2.id === stickerId) {
+                                conn.element.remove();
+                                return false;
+                            }
+                            return true;
+                        });
+                        this.saveStickersToStorage();
+                    }, 500);
+                }
+            }
+
+            setupModalEvents() {
+                const modal = document.getElementById('sticker-modal');
+                const closeBtn = document.getElementById('close-modal');
+                const cancelBtn = document.getElementById('modal-cancel');
+                const createBtn = document.getElementById('modal-create');
+                const input = document.getElementById('sticker-text');
+                const typeSelect = document.getElementById('sticker-type');
+                const anxietyFields = document.getElementById('anxiety-fields');
+                const modalContent = document.getElementById('modal-content');
+
+                const hideModal = () => this.hideStickerModal();
+
+                // Update modal background color based on type and intensity
+                const updateModalBackground = () => {
+                    const type = typeSelect.value;
+                    const intensityInput = document.querySelector('input[name="intensity"]:checked');
+                    const intensity = intensityInput ? intensityInput.value : '3';
+                    const bgColor = this.getBackgroundColor(type, intensity);
+                    modalContent.style.background = bgColor;
+
+                    // Also update the color preview dot
+                    const colorDot = document.getElementById('color-preview-dot');
+                    if (colorDot) {
+                        colorDot.style.background = bgColor;
+                        // Add a little pulse animation
+                        colorDot.style.transform = 'scale(1.2)';
+                        setTimeout(() => {
+                            colorDot.style.transform = 'scale(1)';
+                        }, 200);
+                    }
+                };
+
+                // Toggle anxiety-specific fields based on type
+                const toggleAnxietyFields = () => {
+                    if (typeSelect.value === 'anxiety') {
+                        anxietyFields.style.display = 'block';
+                    } else {
+                        anxietyFields.style.display = 'none';
+                    }
+                    updateModalBackground();
+                };
+
+                typeSelect.addEventListener('change', toggleAnxietyFields);
+
+                // Add listeners to intensity radio buttons
+                const intensityRadios = document.querySelectorAll('input[name="intensity"]');
+                intensityRadios.forEach(radio => {
+                    radio.addEventListener('change', updateModalBackground);
+                });
+
+                toggleAnxietyFields(); // Initial state
+
+                closeBtn.addEventListener('click', hideModal);
+                cancelBtn.addEventListener('click', hideModal);
+
+                createBtn.addEventListener('click', () => {
+                    const text = input.value.trim();
+                    const type = typeSelect.value;
+                    const intensity = document.querySelector('input[name="intensity"]:checked').value;
+                    let bodyPart = '';
+                    let category = '';
+
+                    if (type === 'anxiety') {
+                        bodyPart = document.getElementById('sticker-bodypart').value.trim();
+                        category = document.getElementById('sticker-category').value;
+                    }
+
+                    if (text) {
+                        this.createSticker(text, type, intensity, bodyPart, category);
+                    }
+                });
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        createBtn.click();
+                    }
+                });
+
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) hideModal();
+                });
+
+                document.getElementById('cancel-connection').addEventListener('click', () => {
+                    this.exitConnectionMode();
+                });
+            }
+
+            setupFloatingButtonEvents() {
+                document.getElementById('submit-method-btn').addEventListener('click', () => {
+                    window.location.href = './solutions.html';
+                });
+
+                document.getElementById('reset-btn').addEventListener('click', () => {
+                    if (confirm('Are you sure you want to reset all notes? This will clear all custom notes and restore the initial state.')) {
+                        this.resetAllStickers();
+                    }
+                });
+
+                document.getElementById('home-btn').addEventListener('click', () => {
+                    window.location.href = './index.html';
+                });
+
+                // Setup filter buttons
+                this.setupFilterButtons();
+            }
+
+            setupFilterButtons() {
+                // Category filter buttons
+                const categoryButtons = document.querySelectorAll('.filter-category-btn');
+                categoryButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const category = btn.dataset.category;
+                        this.setActiveFilter('category', category);
+
+                        // Update button states
+                        categoryButtons.forEach(b => {
+                            b.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
+                            b.classList.add('bg-white', 'text-slate-700', 'border-2', 'border-slate-200');
+                        });
+                        btn.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
+                        btn.classList.remove('bg-white', 'text-slate-700', 'border-2', 'border-slate-200');
+
+                        this.applyFilters();
+                    });
+                });
+
+                // Intensity filter buttons
+                const intensityButtons = document.querySelectorAll('.filter-intensity-btn');
+                intensityButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const intensity = btn.dataset.intensity;
+                        this.setActiveFilter('intensity', intensity);
+
+                        // Update button states
+                        intensityButtons.forEach(b => {
+                            b.classList.remove('active');
+                            if (!b.classList.contains('bg-gradient-to-r')) {
+                                b.classList.remove('bg-primary', 'text-white', 'shadow-md');
+                                b.classList.add('border-2', 'border-slate-200');
+                            }
+                        });
+                        btn.classList.add('active');
+                        if (!btn.classList.contains('bg-gradient-to-r')) {
+                            btn.classList.add('bg-primary', 'text-white', 'shadow-md');
+                            btn.classList.remove('border-2', 'border-slate-200');
+                        }
+
+                        this.applyFilters();
+                    });
+                });
+
+                // Clear all filters button
+                const clearFiltersBtn = document.getElementById('clear-filters');
+                if (clearFiltersBtn) {
+                    clearFiltersBtn.addEventListener('click', () => {
+                        this.clearAllFilters();
+                    });
+                }
+            }
+
+            setActiveFilter(type, value) {
+                this.activeFilters[type] = value;
+                this.updateActiveFiltersDisplay();
+            }
+
+            clearAllFilters() {
+                this.activeFilters = {
+                    category: 'all',
+                    intensity: 'all'
+                };
+
+                // Reset category buttons
+                const categoryButtons = document.querySelectorAll('.filter-category-btn');
+                categoryButtons.forEach(btn => {
+                    btn.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
+                    btn.classList.add('bg-white', 'text-slate-700', 'border-2', 'border-slate-200');
+                    if (btn.dataset.category === 'all') {
+                        btn.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
+                        btn.classList.remove('bg-white', 'text-slate-700', 'border-2', 'border-slate-200');
+                    }
+                });
+
+                // Reset intensity buttons
+                const intensityButtons = document.querySelectorAll('.filter-intensity-btn');
+                intensityButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (!btn.classList.contains('bg-gradient-to-r')) {
+                        btn.classList.remove('bg-primary', 'text-white', 'shadow-md');
+                        btn.classList.add('border-2', 'border-slate-200');
+                    }
+                    if (btn.dataset.intensity === 'all') {
+                        btn.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
+                        btn.classList.remove('border-2', 'border-slate-200');
+                    }
+                });
+
+                this.updateActiveFiltersDisplay();
+                this.applyFilters();
+            }
+
+            updateActiveFiltersDisplay() {
+                const activeFiltersDiv = document.getElementById('active-filters');
+                const activeFiltersList = document.getElementById('active-filters-list');
+
+                const hasActiveFilters = this.activeFilters.category !== 'all' || this.activeFilters.intensity !== 'all';
+
+                if (hasActiveFilters) {
+                    activeFiltersDiv.classList.remove('hidden');
+                    activeFiltersList.innerHTML = '';
+
+                    if (this.activeFilters.category !== 'all') {
+                        const categoryTag = document.createElement('span');
+                        categoryTag.className = 'px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium';
+                        categoryTag.textContent = `Category: ${this.getCategoryLabel(this.activeFilters.category)}`;
+                        activeFiltersList.appendChild(categoryTag);
+                    }
+
+                    if (this.activeFilters.intensity !== 'all') {
+                        const intensityTag = document.createElement('span');
+                        intensityTag.className = 'px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium';
+                        intensityTag.textContent = `Level: ${this.activeFilters.intensity}`;
+                        activeFiltersList.appendChild(intensityTag);
+                    }
+                } else {
+                    activeFiltersDiv.classList.add('hidden');
+                }
+            }
+
+            applyFilters() {
+                const { category, intensity } = this.activeFilters;
+
+                this.stickers.forEach(stickerData => {
+                    const sticker = stickerData.element;
+                    const stickerCategory = stickerData.category || '';
+                    const stickerType = stickerData.type;
+                    const stickerIntensity = stickerData.intensity;
+
+                    let shouldShow = true;
+
+                    // Check category filter
+                    if (category !== 'all') {
+                        if (category === 'support') {
+                            shouldShow = stickerType === 'support';
+                        } else {
+                            shouldShow = stickerCategory === category;
+                        }
+                    }
+
+                    // Check intensity filter
+                    if (shouldShow && intensity !== 'all') {
+                        shouldShow = stickerIntensity === intensity;
+                    }
+
+                    // Apply visibility with animation
+                    if (shouldShow) {
+                        sticker.style.display = '';
+                        sticker.style.opacity = '0';
+                        sticker.style.transform = 'scale(0.8)';
+
+                        setTimeout(() => {
+                            sticker.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                            sticker.style.opacity = '1';
+                            sticker.style.transform = 'scale(1)';
+                        }, 10);
+                    } else {
+                        sticker.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        sticker.style.opacity = '0';
+                        sticker.style.transform = 'scale(0.8)';
+
+                        setTimeout(() => {
+                            sticker.style.display = 'none';
+                        }, 300);
+                    }
+                });
+
+                // Update connections visibility
+                this.updateConnectionsVisibility();
+            }
+
+            updateConnectionsVisibility() {
+                this.connections.forEach(conn => {
+                    const sticker1Visible = conn.sticker1.style.display !== 'none';
+                    const sticker2Visible = conn.sticker2.style.display !== 'none';
+
+                    if (sticker1Visible && sticker2Visible) {
+                        conn.element.style.opacity = '0.8';
+                        conn.element.style.pointerEvents = 'auto';
+                    } else {
+                        conn.element.style.opacity = '0';
+                        conn.element.style.pointerEvents = 'none';
+                    }
+                });
+            }
+
+            resetAllStickers() {
+                // Clear all stickers with animation
+                this.stickers.forEach(s => {
+                    s.element.style.transition = 'all 0.3s ease-out';
+                    s.element.style.transform = 'scale(0) rotate(180deg)';
+                    s.element.style.opacity = '0';
+                });
+
+                // Clear all connections
+                this.connections.forEach(conn => {
+                    conn.element.remove();
+                });
+
+                setTimeout(() => {
+                    // Clear arrays
+                    this.stickers = [];
+                    this.connections = [];
+                    this.stickerIdCounter = 0;
+
+                    // Clear container
+                    this.container.innerHTML = '';
+                    this.svgContainer.innerHTML = '';
+
+                    // Clear localStorage
+                    localStorage.removeItem('mirrorNotes_stickers');
+                    localStorage.removeItem('mirrorNotes_connections');
+
+                    // Reload initial stickers (with animation for fresh start)
+                    initialStickers.forEach(data => {
+                        this.createStickerElement(
+                            data.text,
+                            data.type,
+                            data.intensity,
+                            data.top,
+                            data.left,
+                            data.bodyPart || '',
+                            data.category || '',
+                            null, // Generate new ID
+                            false // Show entrance animation on reset
+                        );
+                    });
+
+                    // Show success message
+                    this.showToast('All notes have been reset');
+                }, 300);
+            }
+
+            showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-lg z-[60] opacity-0 transition-opacity duration-300';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => toast.style.opacity = '1', 10);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            new InteractiveWall();
+        });
+    </script>
+
+    <!-- Shared Navbar Scroll Effect -->
+    <script src="scripts/navbar-scroll.js"></script>
+
+</body>
+
+</html>

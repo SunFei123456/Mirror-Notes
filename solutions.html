@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Mirror Notes - Share Your Strength</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#9b59b6',
+                        secondary: '#e91e63',
+                        accent: '#3498db',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Poppins:wght@300;400;500&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles/common.css" />
+    <style>
+        .note-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .note-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-content {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Modal 16:9 aspect ratio */
+        .modal-content-wrapper {
+            width: 90vw;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content-wrapper {
+                width: 95vw;
+                aspect-ratio: 4 / 3;
+            }
+        }
+
+        .like-btn {
+            transition: all 0.2s ease;
+        }
+
+        .like-btn:active {
+            transform: scale(0.9);
+        }
+
+        .like-btn.liked {
+            animation: heartBeat 0.5s ease;
+        }
+
+        @keyframes heartBeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.3);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            75% {
+                transform: scale(1.2);
+            }
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Pastel color variations */
+        .bg-yellow-pastel {
+            background-color: #FFF9E6;
+        }
+
+        .bg-pink-pastel {
+            background-color: #FFE6F0;
+        }
+
+        .bg-green-pastel {
+            background-color: #E6F9F0;
+        }
+
+        .bg-purple-pastel {
+            background-color: #F0E6FF;
+        }
+
+        .bg-blue-pastel {
+            background-color: #E6F3FF;
+        }
+
+        .bg-orange-pastel {
+            background-color: #FFF0E6;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased"
+    style="background: linear-gradient(135deg, #eaedf3 0%, #d7e2f7 25%, #cbdbfa 50%, #95afd8 75%, #9bbfee 100%);">
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header id="navbar" class="sticky top-0 z-50 px-6 sm:px-16 py-6 transition-all duration-300">
+            <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3 group">
+                    <div class="w-8 h-8 text-primary group-hover:text-secondary transition-colors duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm5 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-5.01-5.5c.98 0 1.83.61 2.21 1.5H9.8c.38-.89 1.23-1.5 2.21-1.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2
+                        class="text-3xl font-bold text-slate-800 font-display tracking-wider group-hover:text-primary transition-colors duration-300">
+                        Mirror Notes</h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-12">
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./index.html">Home</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./message-wall.html">Wall</a>
+                    <a class="nav-link relative text-base font-light text-slate-900 font-medium transition-colors"
+                        href="./solutions.html">Solutions</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./community.html">Community</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./about.html">About</a>
+                </nav>
+                <button class="md:hidden text-slate-800">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow relative pt-16 pb-24 px-4 sm:px-8">
+            <div class="mx-auto" style="max-width: 1200px;">
+                <!-- 1. Title Section -->
+                <div class="text-center mb-12">
+                    <h1 class="font-display text-5xl md:text-7xl font-bold text-slate-900 mb-4">
+                        Share Your Strength
+                    </h1>
+                    <p class="text-xl text-slate-600 max-w-2xl mx-auto">
+                        Sometimes, the smallest change can bring the biggest relief.
+                    </p>
+                </div>
+
+                <!-- 2. Share Form Card -->
+                <div class="bg-blue-pastel rounded-2xl shadow-sm p-8 md:p-12 mb-16">
+                    <h2 class="text-lg font-semibold text-slate-800 mb-6">
+                        What has helped you cope with appearance anxiety (without harming yourself)?
+                    </h2>
+                    <textarea id="share-input" rows="6"
+                        class="w-full px-4 py-3 bg-white/60 border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 resize-none text-slate-700 placeholder-slate-400 backdrop-blur-sm"
+                        placeholder="e.g., 'I quit filters and watched more vlogs by ordinary people.'"></textarea>
+                    <div class="flex justify-end mt-6">
+                        <button id="share-btn"
+                            class="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-full transition-colors shadow-md hover:shadow-lg">
+                            Share
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Community Notes Section -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-8">Community Notes</h2>
+
+                    <div class="notes-grid" id="notes-container">
+                        <!-- Sample Note Cards -->
+                        <div class="note-card bg-yellow-pastel rounded-2xl p-6 shadow" data-id="1"
+                            onclick="openNoteModal(this)">
+                            <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
+                                "I quit filters and watched more vlogs by ordinary people."
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-white font-bold">
+                                        S
+                                    </div>
+                                    <span class="text-slate-700 font-medium">Sarah M.</span>
+                                </div>
+                                <button
+                                    class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                                    onclick="toggleLike(this)">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                    <span class="like-count font-semibold">123</span>
+                                </button>
+                            </div>
+                            <div class="text-sm text-slate-500">
+                                Helped <span class="helped-count font-semibold text-slate-700">123</span> people
+                            </div>
+                        </div>
+
+                        <div class="note-card bg-pink-pastel rounded-2xl p-6 shadow" data-id="2"
+                            onclick="openNoteModal(this)">
+                            <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
+                                "Look at yourself smiling more often."
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold">
+                                        E
+                                    </div>
+                                    <span class="text-slate-700 font-medium">Emily R.</span>
+                                </div>
+                                <button
+                                    class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                                    onclick="toggleLike(this)">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                    <span class="like-count font-semibold">87</span>
+                                </button>
+                            </div>
+                            <div class="text-sm text-slate-500">
+                                Helped <span class="helped-count font-semibold text-slate-700">87</span> people
+                            </div>
+                        </div>
+
+                        <div class="note-card bg-green-pastel rounded-2xl p-6 shadow" data-id="3"
+                            onclick="openNoteModal(this)">
+                            <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
+                                "Practice self-compassion and positive self-talk."
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold">
+                                        D
+                                    </div>
+                                    <span class="text-slate-700 font-medium">David L.</span>
+                                </div>
+                                <button
+                                    class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                                    onclick="toggleLike(this)">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                    <span class="like-count font-semibold">54</span>
+                                </button>
+                            </div>
+                            <div class="text-sm text-slate-500">
+                                Helped <span class="helped-count font-semibold text-slate-700">54</span> people
+                            </div>
+                        </div>
+
+                        <div class="note-card bg-purple-pastel rounded-2xl p-6 shadow" data-id="4"
+                            onclick="openNoteModal(this)">
+                            <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
+                                "Focus on inner qualities rather than physical appearance."
+                            </p>
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-white font-bold">
+                                        J
+                                    </div>
+                                    <span class="text-slate-700 font-medium">Jessica K.</span>
+                                </div>
+                                <button
+                                    class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                                    onclick="toggleLike(this)">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                    <span class="like-count font-semibold">32</span>
+                                </button>
+                            </div>
+                            <div class="text-sm text-slate-500">
+                                Helped <span class="helped-count font-semibold text-slate-700">32</span> people
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-40">
+        <a href="./message-wall.html"
+            class="w-14 h-14 bg-primary hover:bg-primary/90 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 group relative"
+            title="Back to Message Wall">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z">
+                </path>
+            </svg>
+            <span
+                class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Back to Message Wall
+            </span>
+        </a>
+
+        <a href="./community.html"
+            class="w-14 h-14 bg-secondary hover:bg-secondary/90 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 group relative"
+            title="Join Community">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                </path>
+            </svg>
+            <span
+                class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Join Community
+            </span>
+        </a>
+
+        <a href="./index.html"
+            class="w-14 h-14 bg-accent hover:bg-accent/90 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 group relative"
+            title="Back to Home">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                </path>
+            </svg>
+            <span
+                class="absolute right-full mr-3 px-3 py-2 bg-slate-800 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                Back to Home
+            </span>
+        </a>
+    </div>
+
+    <!-- Note Detail Modal -->
+    <div id="note-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
+        onclick="closeNoteModal(event)">
+        <div class="modal-content-wrapper bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col transform transition-all duration-300 scale-95 opacity-0"
+            id="modal-content-box" onclick="event.stopPropagation()">
+            <!-- Close Button -->
+            <button onclick="closeNoteModal()"
+                class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-y-auto p-8 md:p-12" id="modal-bg">
+                <div class="h-full flex flex-col justify-center">
+                    <p id="modal-text" class="text-slate-800 text-lg md:text-xl leading-relaxed italic mb-8"></p>
+
+                    <div class="flex items-center justify-between pt-6 border-t border-slate-200">
+                        <div class="flex items-center gap-3">
+                            <div id="modal-avatar"
+                                class="w-12 h-12 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-lg">
+                            </div>
+                            <div>
+                                <div id="modal-author" class="text-slate-900 font-semibold text-lg"></div>
+                                <div id="modal-helped" class="text-sm text-slate-500 mt-1"></div>
+                            </div>
+                        </div>
+                        <button id="modal-like-btn"
+                            class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors px-4 py-2 rounded-full hover:bg-slate-100"
+                            onclick="event.stopPropagation(); toggleLikeFromModal()">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                </path>
+                            </svg>
+                            <span id="modal-like-count" class="font-semibold text-lg">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Like functionality
+        const likedNotes = new Set(JSON.parse(localStorage.getItem('likedNotes') || '[]'));
+        let currentModalCard = null;
+
+        function toggleLike(button) {
+            const card = button.closest('.note-card');
+            const noteId = card.dataset.id;
+            const countSpan = button.querySelector('.like-count');
+            const helpedCountSpan = card.querySelector('.helped-count');
+            const heartIcon = button.querySelector('svg');
+
+            if (likedNotes.has(noteId)) {
+                // Unlike
+                likedNotes.delete(noteId);
+                button.classList.remove('liked');
+                heartIcon.setAttribute('fill', 'none');
+                const currentCount = parseInt(countSpan.textContent);
+                countSpan.textContent = currentCount - 1;
+                if (helpedCountSpan) {
+                    helpedCountSpan.textContent = currentCount - 1;
+                }
+            } else {
+                // Like
+                likedNotes.add(noteId);
+                button.classList.add('liked');
+                heartIcon.setAttribute('fill', 'currentColor');
+                const currentCount = parseInt(countSpan.textContent);
+                countSpan.textContent = currentCount + 1;
+                if (helpedCountSpan) {
+                    helpedCountSpan.textContent = currentCount + 1;
+                }
+            }
+
+            localStorage.setItem('likedNotes', JSON.stringify([...likedNotes]));
+        }
+
+        // Initialize liked states
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.note-card').forEach(card => {
+                const noteId = card.dataset.id;
+                if (likedNotes.has(noteId)) {
+                    const button = card.querySelector('.like-btn');
+                    const heartIcon = button.querySelector('svg');
+                    button.classList.add('liked');
+                    heartIcon.setAttribute('fill', 'currentColor');
+                }
+            });
+        });
+
+        // Share functionality
+        const shareBtn = document.getElementById('share-btn');
+        const shareInput = document.getElementById('share-input');
+
+        function createNoteCard(text) {
+            const colors = [
+                { bg: 'bg-yellow-pastel', gradient: 'from-yellow-400 to-amber-500', initial: 'A' },
+                { bg: 'bg-pink-pastel', gradient: 'from-pink-400 to-rose-500', initial: 'B' },
+                { bg: 'bg-green-pastel', gradient: 'from-green-400 to-emerald-500', initial: 'C' },
+                { bg: 'bg-purple-pastel', gradient: 'from-purple-400 to-violet-500', initial: 'D' },
+                { bg: 'bg-blue-pastel', gradient: 'from-blue-400 to-cyan-500', initial: 'E' },
+                { bg: 'bg-orange-pastel', gradient: 'from-orange-400 to-amber-500', initial: 'F' }
+            ];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const newId = 'note_' + Date.now();
+
+            const card = document.createElement('div');
+            card.className = `note-card ${randomColor.bg} rounded-2xl p-6 shadow`;
+            card.dataset.id = newId;
+            card.setAttribute('onclick', 'openNoteModal(this)');
+            card.innerHTML = `
+                <p class="note-content text-slate-800 text-base leading-relaxed mb-6 italic">
+                    "${text}"
+                </p>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br ${randomColor.gradient} flex items-center justify-center text-white font-bold">
+                            ${randomColor.initial}
+                        </div>
+                        <span class="text-slate-700 font-medium">Anonymous</span>
+                    </div>
+                    <button class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
+                        onclick="toggleLike(this)">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <span class="like-count font-semibold">0</span>
+                    </button>
+                </div>
+                <div class="text-sm text-slate-500">
+                    Helped <span class="helped-count font-semibold text-slate-700">0</span> people
+                </div>
+            `;
+
+            const container = document.getElementById('notes-container');
+            container.insertBefore(card, container.firstChild);
+
+            // Animate the new card
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        shareBtn.addEventListener('click', () => {
+            const text = shareInput.value.trim();
+            if (text) {
+                createNoteCard(text);
+                shareInput.value = '';
+                // Show success message
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg z-50';
+                toast.textContent = 'Thank you for sharing! 💚';
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.transition = 'opacity 0.3s';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            } else {
+                alert('Please enter your experience before sharing!');
+            }
+        });
+
+        // Enter key to share
+        shareInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                shareBtn.click();
+            }
+        });
+
+        // Modal functionality
+        function openNoteModal(cardElement) {
+            // Prevent opening modal when clicking interactive elements
+            if (event.target.closest('.like-btn') || event.target.closest('button')) {
+                return;
+            }
+
+            currentModalCard = cardElement;
+            const noteText = cardElement.querySelector('.note-content').textContent.trim();
+            const authorName = cardElement.querySelector('.text-slate-700.font-medium').textContent;
+            const avatarDiv = cardElement.querySelector('.w-10.h-10');
+            const avatarInitial = avatarDiv.textContent.trim();
+            const avatarClasses = avatarDiv.className;
+            const likeCount = cardElement.querySelector('.like-count').textContent;
+            const helpedCount = cardElement.querySelector('.helped-count').textContent;
+            const cardBgClass = cardElement.classList[1]; // Get the bg color class
+            const noteId = cardElement.dataset.id;
+
+            // Set modal content
+            document.getElementById('modal-text').textContent = noteText;
+            document.getElementById('modal-author').textContent = authorName;
+            document.getElementById('modal-avatar').textContent = avatarInitial;
+            document.getElementById('modal-avatar').className = avatarClasses.replace('w-10 h-10', 'w-12 h-12') + ' text-lg';
+            document.getElementById('modal-like-count').textContent = likeCount;
+            document.getElementById('modal-helped').textContent = `Helped ${helpedCount} people`;
+
+            // Set modal background color
+            const modalBg = document.getElementById('modal-bg');
+            modalBg.parentElement.className = modalBg.parentElement.className.replace(/bg-\w+-pastel/g, '');
+            modalBg.parentElement.classList.add(cardBgClass);
+
+            // Update like button state
+            const modalLikeBtn = document.getElementById('modal-like-btn');
+            const modalHeartIcon = modalLikeBtn.querySelector('svg');
+            if (likedNotes.has(noteId)) {
+                modalLikeBtn.classList.add('liked');
+                modalHeartIcon.setAttribute('fill', 'currentColor');
+            } else {
+                modalLikeBtn.classList.remove('liked');
+                modalHeartIcon.setAttribute('fill', 'none');
+            }
+
+            // Show modal
+            const modal = document.getElementById('note-modal');
+            const modalContent = document.getElementById('modal-content-box');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeNoteModal(event) {
+            if (event && event.target.closest('.modal-content-wrapper') && !event.target.closest('button')) {
+                return;
+            }
+
+            const modal = document.getElementById('note-modal');
+            const modalContent = document.getElementById('modal-content-box');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                currentModalCard = null;
+            }, 300);
+        }
+
+        function toggleLikeFromModal() {
+            if (!currentModalCard) return;
+
+            const likeBtn = currentModalCard.querySelector('.like-btn');
+            toggleLike(likeBtn);
+
+            // Update modal display
+            const likeCount = currentModalCard.querySelector('.like-count').textContent;
+            const helpedCount = currentModalCard.querySelector('.helped-count').textContent;
+            document.getElementById('modal-like-count').textContent = likeCount;
+            document.getElementById('modal-helped').textContent = `Helped ${helpedCount} people`;
+
+            // Update modal like button state
+            const noteId = currentModalCard.dataset.id;
+            const modalLikeBtn = document.getElementById('modal-like-btn');
+            const modalHeartIcon = modalLikeBtn.querySelector('svg');
+            if (likedNotes.has(noteId)) {
+                modalLikeBtn.classList.add('liked');
+                modalHeartIcon.setAttribute('fill', 'currentColor');
+            } else {
+                modalLikeBtn.classList.remove('liked');
+                modalHeartIcon.setAttribute('fill', 'none');
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeNoteModal();
+            }
+        });
+    </script>
+
+    <!-- Shared Navbar Scroll Effect -->
+    <script src="scripts/navbar-scroll.js"></script>
+
+</body>
+
+</html>

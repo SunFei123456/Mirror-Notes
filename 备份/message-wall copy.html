@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>MirrorTalk - Interactive Wall</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Poppins:wght@300;400;500&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles/common.css" />
+    <style>
+        .sticker {
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .sticker:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .sticker.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(156, 163, 175, 0.5);
+            z-index: 15;
+        }
+
+        .connection-line {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .canvas-grid {
+            background-image:
+                linear-gradient(rgba(156, 163, 175, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(156, 163, 175, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-text antialiased"
+    style="background: linear-gradient(135deg, #eaedf3 0%, #d7e2f7 25%, #cbdbfa 50%, #95afd8 75%, #9bbfee 100%);">
+    <div class="flex flex-col min-h-screen">
+        <header class="absolute top-0 left-0 right-0 z-50 px-6 sm:px-16 py-8 fade-in">
+            <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3 group">
+                    <div class="w-8 h-8 text-primary group-hover:text-secondary transition-colors duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm5 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-5.01-5.5c.98 0 1.83.61 2.21 1.5H9.8c.38-.89 1.23-1.5 2.21-1.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2
+                        class="text-3xl font-bold text-slate-800 font-display tracking-wider group-hover:text-primary transition-colors duration-300">
+                        Mirror Notes</h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-12">
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./index.html">Home</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="#">Healing Tips</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="#">Community</a>
+                </nav>
+                <button class="md:hidden text-slate-800">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-grow relative min-h-screen pt-24">
+            <!-- Interactive Wall Canvas -->
+            <div id="wall-canvas" class="absolute inset-0 cursor-crosshair overflow-hidden canvas-grid">
+                <!-- Existing stickers -->
+                <div class="sticker draggable absolute cursor-move" style="top: 20%; left: 10%;" data-type="anxiety"
+                    data-intensity="high">
+                    <div
+                        class="w-24 h-24 rounded-full bg-gradient-to-br from-red-400 to-red-600 shadow-lg flex items-center justify-center text-white font-medium text-sm text-center p-2">
+                        My nose is too big
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 50%; left: 30%;" data-type="anxiety"
+                    data-intensity="medium">
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg flex items-center justify-center text-white font-medium text-xs text-center p-2">
+                        Acne scars
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 10%; left: 55%;" data-type="anxiety"
+                    data-intensity="low">
+                    <div
+                        class="w-28 h-28 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg flex items-center justify-center text-white font-medium text-sm text-center p-2">
+                        Frizzy hair
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 60%; left: 70%;" data-type="support"
+                    data-intensity="medium">
+                    <div
+                        class="w-22 h-22 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg flex items-center justify-center text-white font-medium text-xs text-center p-2">
+                        You're beautiful
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 35%; left: 50%;" data-type="anxiety"
+                    data-intensity="high">
+                    <div
+                        class="w-24 h-24 rounded-full bg-gradient-to-br from-red-400 to-red-600 shadow-lg flex items-center justify-center text-white font-medium text-sm text-center p-2">
+                        Crooked teeth
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 75%; left: 5%;" data-type="anxiety"
+                    data-intensity="medium">
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg flex items-center justify-center text-white font-medium text-xs text-center p-2">
+                        Weight issues
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 5%; left: 25%;" data-type="support"
+                    data-intensity="low">
+                    <div
+                        class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg flex items-center justify-center text-white font-medium text-sm text-center p-2">
+                        I feel the same
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 80%; left: 45%;" data-type="anxiety"
+                    data-intensity="low">
+                    <div
+                        class="w-18 h-18 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg flex items-center justify-center text-white font-medium text-xs text-center p-2">
+                        Big ears
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 40%; left: 0%;" data-type="anxiety"
+                    data-intensity="medium">
+                    <div
+                        class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg flex items-center justify-center text-white font-medium text-xs text-center p-2">
+                        Uneven eyes
+                    </div>
+                </div>
+
+                <div class="sticker draggable absolute cursor-move" style="top: 70%; left: 0%;" data-type="support"
+                    data-intensity="high">
+                    <div
+                        class="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg flex items-center justify-center text-white font-medium text-sm text-center p-2">
+                        Love your smile
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div
+                class="absolute top-32 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg z-30">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                    <span class="text-slate-700 font-medium">点击空白区域创建便签，拖拽便签，双击连接</span>
+                </div>
+            </div>
+
+            <!-- Connection Mode Indicator -->
+            <div id="connection-mode"
+                class="fixed top-32 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg hidden z-30">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                    <span class="text-slate-700 font-medium">连接模式 - 点击两个便签进行连接</span>
+                    <button id="cancel-connection" class="text-slate-400 hover:text-slate-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Floating Action Buttons -->
+            <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-40">
+                <button id="submit-method-btn"
+                    class="w-14 h-14 bg-primary rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110"
+                    title="提交缓解方法">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                        </path>
+                    </svg>
+                </button>
+
+                <button id="home-btn"
+                    class="w-14 h-14 bg-secondary rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110"
+                    title="返回首页">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                        </path>
+                    </svg>
+                </button>
+
+                <a href="./about.html" id="about-btn"
+                    class="w-14 h-14 bg-accent rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110"
+                    title="项目背景">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Sticker Creation Modal -->
+    <div id="sticker-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 transform transition-all duration-300 scale-95 opacity-0"
+            id="modal-content">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-semibold text-slate-800">创建便签</h3>
+                <button id="close-modal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">内容</label>
+                    <input id="sticker-text" type="text"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary"
+                        placeholder="输入你的感受...">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">类型</label>
+                    <select id="sticker-type"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary">
+                        <option value="anxiety">焦虑</option>
+                        <option value="support">支持</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">强度</label>
+                    <select id="sticker-intensity"
+                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-primary focus:border-primary">
+                        <option value="low">低</option>
+                        <option value="medium">中</option>
+                        <option value="high">高</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="modal-cancel"
+                    class="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors">取消</button>
+                <button id="modal-create"
+                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class InteractiveWall {
+            constructor() {
+                this.canvas = document.getElementById('wall-canvas');
+                this.stickers = [];
+                this.connections = [];
+                this.isConnecting = false;
+                this.selectedStickers = [];
+                this.draggedSticker = null;
+                this.dragOffset = { x: 0, y: 0 };
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadExistingStickers();
+            }
+
+            setupEventListeners() {
+                // Canvas click to create sticker
+                this.canvas.addEventListener('click', (e) => {
+                    if (e.target === this.canvas) {
+                        this.showStickerModal(e.clientX, e.clientY);
+                    }
+                });
+
+                // Sticker interactions
+                this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+                this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+
+                // Double click to connect
+                this.canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
+
+                // Modal events
+                this.setupModalEvents();
+
+                // Floating button events
+                this.setupFloatingButtonEvents();
+            }
+
+            loadExistingStickers() {
+                const existingStickers = this.canvas.querySelectorAll('.sticker');
+                existingStickers.forEach(sticker => {
+                    this.stickers.push({
+                        element: sticker,
+                        id: this.generateId(),
+                        type: sticker.dataset.type,
+                        intensity: sticker.dataset.intensity,
+                        text: sticker.textContent.trim()
+                    });
+                });
+            }
+
+            showStickerModal(x, y) {
+                this.modalPosition = { x, y };
+                const modal = document.getElementById('sticker-modal');
+                const content = document.getElementById('modal-content');
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+
+            hideStickerModal() {
+                const modal = document.getElementById('sticker-modal');
+                const content = document.getElementById('modal-content');
+
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+
+            createSticker(text, type, intensity) {
+                const sticker = document.createElement('div');
+                sticker.className = 'sticker draggable absolute cursor-move';
+                sticker.dataset.type = type;
+                sticker.dataset.intensity = intensity;
+
+                // Position sticker near click point
+                const rect = this.canvas.getBoundingClientRect();
+                const x = ((this.modalPosition.x - rect.left) / rect.width) * 100;
+                const y = ((this.modalPosition.y - rect.top) / rect.height) * 100;
+
+                sticker.style.left = Math.max(5, Math.min(95, x)) + '%';
+                sticker.style.top = Math.max(5, Math.min(95, y)) + '%';
+
+                // Create content based on type and intensity
+                const colors = this.getColors(type, intensity);
+                const size = this.getSize(intensity);
+
+                sticker.innerHTML = `
+                    <div class="${size} rounded-full bg-gradient-to-br ${colors} shadow-lg flex items-center justify-center text-white font-medium text-center p-2">
+                        ${text}
+                    </div>
+                `;
+
+                this.canvas.appendChild(sticker);
+
+                this.stickers.push({
+                    element: sticker,
+                    id: this.generateId(),
+                    type: type,
+                    intensity: intensity,
+                    text: text
+                });
+
+                this.hideStickerModal();
+            }
+
+            getColors(type, intensity) {
+                if (type === 'anxiety') {
+                    switch (intensity) {
+                        case 'high': return 'from-red-400 to-red-600';
+                        case 'medium': return 'from-orange-400 to-orange-600';
+                        case 'low': return 'from-blue-400 to-blue-600';
+                    }
+                } else if (type === 'support') {
+                    switch (intensity) {
+                        case 'high': return 'from-green-400 to-green-600';
+                        case 'medium': return 'from-emerald-400 to-emerald-600';
+                        case 'low': return 'from-teal-400 to-teal-600';
+                    }
+                }
+            }
+
+            getSize(intensity) {
+                switch (intensity) {
+                    case 'high': return 'w-24 h-24 text-sm';
+                    case 'medium': return 'w-20 h-20 text-xs';
+                    case 'low': return 'w-18 h-18 text-xs';
+                }
+            }
+
+            handleMouseDown(e) {
+                const sticker = e.target.closest('.sticker');
+                if (!sticker) return;
+
+                e.preventDefault();
+                this.draggedSticker = sticker;
+
+                const rect = sticker.getBoundingClientRect();
+                const canvasRect = this.canvas.getBoundingClientRect();
+
+                this.dragOffset.x = e.clientX - rect.left;
+                this.dragOffset.y = e.clientY - rect.top;
+
+                sticker.classList.add('selected');
+            }
+
+            handleMouseMove(e) {
+                if (!this.draggedSticker) return;
+
+                e.preventDefault();
+
+                const canvasRect = this.canvas.getBoundingClientRect();
+                const x = ((e.clientX - canvasRect.left - this.dragOffset.x) / canvasRect.width) * 100;
+                const y = ((e.clientY - canvasRect.top - this.dragOffset.y) / canvasRect.height) * 100;
+
+                this.draggedSticker.style.left = Math.max(0, Math.min(100, x)) + '%';
+                this.draggedSticker.style.top = Math.max(0, Math.min(100, y)) + '%';
+            }
+
+            handleMouseUp(e) {
+                if (this.draggedSticker) {
+                    this.draggedSticker.classList.remove('selected');
+                    this.draggedSticker = null;
+                }
+            }
+
+            handleDoubleClick(e) {
+                const sticker = e.target.closest('.sticker');
+                if (!sticker) return;
+
+                if (this.isConnecting) {
+                    this.selectedStickers.push(sticker);
+
+                    if (this.selectedStickers.length === 2) {
+                        this.createConnection(this.selectedStickers[0], this.selectedStickers[1]);
+                        this.exitConnectionMode();
+                    }
+                } else {
+                    this.enterConnectionMode();
+                    this.selectedStickers = [sticker];
+                }
+            }
+
+            enterConnectionMode() {
+                this.isConnecting = true;
+                document.getElementById('connection-mode').classList.remove('hidden');
+                this.canvas.style.cursor = 'crosshair';
+            }
+
+            exitConnectionMode() {
+                this.isConnecting = false;
+                this.selectedStickers = [];
+                document.getElementById('connection-mode').classList.add('hidden');
+                this.canvas.style.cursor = 'crosshair';
+            }
+
+            createConnection(sticker1, sticker2) {
+                const line = document.createElement('div');
+                line.className = 'connection-line';
+
+                const rect1 = sticker1.getBoundingClientRect();
+                const rect2 = sticker2.getBoundingClientRect();
+                const canvasRect = this.canvas.getBoundingClientRect();
+
+                const x1 = rect1.left + rect1.width / 2 - canvasRect.left;
+                const y1 = rect1.top + rect1.height / 2 - canvasRect.top;
+                const x2 = rect2.left + rect2.width / 2 - canvasRect.left;
+                const y2 = rect2.top + rect2.height / 2 - canvasRect.top;
+
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+                line.style.left = x1 + 'px';
+                line.style.top = y1 + 'px';
+                line.style.width = length + 'px';
+                line.style.height = '2px';
+                line.style.backgroundColor = '#9b59b6';
+                line.style.transform = `rotate(${angle}deg)`;
+                line.style.transformOrigin = '0 50%';
+
+                this.canvas.appendChild(line);
+
+                this.connections.push({
+                    element: line,
+                    sticker1: sticker1,
+                    sticker2: sticker2
+                });
+            }
+
+            setupModalEvents() {
+                const modal = document.getElementById('sticker-modal');
+                const content = document.getElementById('modal-content');
+                const closeBtn = document.getElementById('close-modal');
+                const cancelBtn = document.getElementById('modal-cancel');
+                const createBtn = document.getElementById('modal-create');
+
+                const hideModal = () => this.hideStickerModal();
+
+                closeBtn.addEventListener('click', hideModal);
+                cancelBtn.addEventListener('click', hideModal);
+
+                createBtn.addEventListener('click', () => {
+                    const text = document.getElementById('sticker-text').value;
+                    const type = document.getElementById('sticker-type').value;
+                    const intensity = document.getElementById('sticker-intensity').value;
+
+                    if (text.trim()) {
+                        this.createSticker(text.trim(), type, intensity);
+                    }
+                });
+
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) hideModal();
+                });
+
+                document.getElementById('cancel-connection').addEventListener('click', () => {
+                    this.exitConnectionMode();
+                });
+            }
+
+            setupFloatingButtonEvents() {
+                document.getElementById('submit-method-btn').addEventListener('click', () => {
+                    // 跳转到方法页
+                    window.location.href = '#';
+                });
+
+                document.getElementById('home-btn').addEventListener('click', () => {
+                    // 跳转到首页
+                    window.location.href = './index.html';
+                });
+
+            }
+
+            generateId() {
+                return 'sticker_' + Math.random().toString(36).substr(2, 9);
+            }
+        }
+
+        // Initialize the interactive wall when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new InteractiveWall();
+        });
+    </script>
+
+</body>
+
+</html>

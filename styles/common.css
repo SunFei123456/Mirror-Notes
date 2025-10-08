@@ -1,0 +1,164 @@
+/* CSS Variables */
+:root {
+  --background-start: #f4f1f7;
+  --background-end: #e8eaf6;
+  --primary: #9b59b6;
+  --secondary: #e91e63;
+  --accent: #3498db;
+  --text: #fffdfa;
+  --text-muted: #fffdfa;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+.fade-in-delay-1 { 
+  animation-delay: 0.3s; 
+}
+
+.fade-in-delay-2 { 
+  animation-delay: 0.6s; 
+}
+
+.fade-in-delay-3 { 
+  animation-delay: 0.9s; 
+}
+
+/* Navigation Styles */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--primary);
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Button Styles */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  border: 2px solid #fffdfa;
+  color: #fffdfa;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3), 0 6px 6px rgba(238, 90, 36, 0.3);
+  background: linear-gradient(135deg, #ee5a24, #ff6b6b);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-secondary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: linear-gradient(135deg, #4834d4, #686de0);
+  border: 2px solid #fffdfa;
+  color: #fffdfa;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(72, 52, 212, 0.3), 0 6px 6px rgba(104, 109, 224, 0.3);
+  background: linear-gradient(135deg, #686de0, #4834d4);
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-secondary:hover::before {
+  left: 100%;
+}
+
+.btn-outline {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: transparent;
+  border: 2px solid #fffdfa;
+  color: #fffdfa;
+}
+
+.btn-outline:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 253, 250, 0.1);
+  box-shadow: 0 10px 20px rgba(255, 253, 250, 0.2), 0 6px 6px rgba(255, 253, 250, 0.1);
+}
+
+/* Sticker Styles for Message Wall */
+.sticker-group:hover .sticker-content {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Tailwind Configuration */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background-start: #f4f1f7;
+    --background-end: #e8eaf6;
+    --primary: #9b59b6;
+    --secondary: #e91e63;
+    --accent: #3498db;
+    --text: #fffdfa;
+    --text-muted: #fffdfa;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Cormorant Garamond", serif;
+  }
+  
+  .font-sans {
+    font-family: "Poppins", sans-serif;
+  }
+}

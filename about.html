@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>About - Mirror Notes</title>
+    <meta name="description" content="Learn about Mirror Notes' mission, design philosophy, and the story behind it">
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Poppins:wght@300;400;500&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="styles/common.css" />
+    <style>
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            opacity: 0;
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        .slide-up-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .slide-up-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .slide-up-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased"
+    style="background: linear-gradient(135deg, #eaedf3 0%, #d7e2f7 25%, #cbdbfa 50%, #95afd8 75%, #9bbfee 100%);">
+
+    <!-- Header -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 px-6 sm:px-16 py-6 transition-all duration-300 fade-in">
+        <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+            <a href="./index.html" class="flex items-center gap-3 group">
+                <div class="w-8 h-8 text-primary group-hover:text-secondary transition-colors duration-300">
+                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm5 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-5.01-5.5c.98 0 1.83.61 2.21 1.5H9.8c.38-.89 1.23-1.5 2.21-1.5z">
+                        </path>
+                    </svg>
+                </div>
+                <h2
+                    class="text-3xl font-bold text-slate-800 font-display tracking-wider group-hover:text-primary transition-colors duration-300">
+                    Mirror Notes</h2>
+            </a>
+            <nav class="hidden md:flex items-center gap-12">
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./index.html">Home</a>
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./message-wall.html">Wall</a>
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./solutions.html">Solutions</a>
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./community.html">Community</a>
+                <a class="nav-link relative text-base font-light text-slate-900 font-medium transition-colors"
+                    href="./about.html">About</a>
+            </nav>
+            <button class="md:hidden text-slate-800">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="min-h-screen pt-32 pb-20 px-4 sm:px-6">
+        <div class="mx-auto" style="max-width: 1200px;">
+
+            <!-- Hero Section -->
+            <section class="text-center mb-20 slide-up">
+                <div class="inline-block mb-6">
+                    <div
+                        class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl float-animation">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="font-display text-5xl md:text-7xl font-bold text-slate-800 mb-6 leading-tight">
+                    About <span class="gradient-text">Mirror Notes</span>
+                </h1>
+                <p class="text-xl text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
+                    Connecting our insecurities, empathy, and understanding
+                </p>
+            </section>
+
+            <!-- Why Section -->
+            <section class="mb-20 slide-up slide-up-delay-1">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-red-400 to-orange-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 font-display">Why We Created This Website</h2>
+                    </div>
+
+                    <div class="space-y-6 text-slate-700 leading-relaxed">
+                        <p class="text-lg">
+                            In today's social media era, appearance anxiety has become a global mental health issue. The
+                            proliferation of filters, photo editing, and "perfect" images has led more and more people
+                            into deep insecurity about their appearance.
+                        </p>
+
+                        <!-- Statistics Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
+                            <div
+                                class="stat-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+                                <div class="text-4xl font-bold mb-2">80%</div>
+                                <div class="text-sm opacity-90">of women are dissatisfied with their appearance</div>
+                                <div class="text-xs opacity-75 mt-2">Source: Dove Global Beauty and Confidence Report
+                                </div>
+                            </div>
+
+                            <div
+                                class="stat-card bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl p-6 text-white shadow-lg">
+                                <div class="text-4xl font-bold mb-2">59%</div>
+                                <div class="text-sm opacity-90">of teenagers have been bullied due to appearance</div>
+                                <div class="text-xs opacity-75 mt-2">Source: NCBI Research Study</div>
+                            </div>
+
+                            <div
+                                class="stat-card bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl p-6 text-white shadow-lg">
+                                <div class="text-4xl font-bold mb-2">91%</div>
+                                <div class="text-sm opacity-90">of people admit to using beauty filters</div>
+                                <div class="text-xs opacity-75 mt-2">Source: Facetuning Survey 2023</div>
+                            </div>
+                        </div>
+
+                        <p class="text-lg">
+                            <strong class="text-slate-900">The Problem:</strong> Everyone silently bears appearance
+                            anxiety, but there are few safe spaces to express these vulnerable feelings. Social media is
+                            filled with polished appearances, while real insecurities are suppressed and isolated.
+                        </p>
+
+                        <p class="text-lg">
+                            <strong class="text-slate-900">Mirror Notes' Mission:</strong> To provide an anonymous, warm
+                            space where everyone can freely express their appearance anxieties. When you see that others
+                            share the same insecurities, you'll discover—you are not alone.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Concept Section -->
+            <section class="mb-20 slide-up slide-up-delay-2">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                                </path>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 font-display">What is "Connection"?</h2>
+                    </div>
+
+                    <div class="space-y-6 text-slate-700 leading-relaxed">
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6">
+                            <p class="text-lg italic text-slate-800">
+                                "When you double-click one note, then another, a dotted line connects them—this is not
+                                just a visual connection, but an emotional resonance."
+                            </p>
+                        </div>
+
+                        <p class="text-lg">
+                            <strong class="text-slate-900">Connections</strong> are the core interactive mechanism of
+                            Mirror Notes. They symbolize:
+                        </p>
+
+                        <ul class="space-y-4 ml-6">
+                            <li class="flex gap-3">
+                                <span class="text-purple-500 font-bold text-xl">·</span>
+                                <div>
+                                    <strong class="text-slate-900">Shared Resonance:</strong>
+                                    <span class="text-slate-700">Seeing that others share your anxieties, that "me too"
+                                        moment, can bring immense comfort.</span>
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="text-pink-500 font-bold text-xl">·</span>
+                                <div>
+                                    <strong class="text-slate-900">Emotional Bridge:</strong>
+                                    <span class="text-slate-700">Connections create intersections between strangers'
+                                        voices, building silent understanding and support.</span>
+                                </div>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="text-blue-500 font-bold text-xl">·</span>
+                                <div>
+                                    <strong class="text-slate-900">Healing Power:</strong>
+                                    <span class="text-slate-700">When anxiety is seen and connected, it's no longer a
+                                        lonely burden, but a shared experience.</span>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div class="bg-slate-100 rounded-2xl p-6 mt-8">
+                            <p class="text-center text-slate-600 text-lg">
+                                💜 Through connections, we're not reinforcing anxiety—we're <strong
+                                    class="text-slate-900">deconstructing it</strong>, <strong
+                                    class="text-slate-900">sharing it</strong>, and <strong
+                                    class="text-slate-900">healing it</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Visual Inspiration Section -->
+            <section class="mb-20 slide-up slide-up-delay-3">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01">
+                                </path>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 font-display">Visual Inspiration</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- EVA Section -->
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div>
+                                <h3 class="text-2xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                    <span class="text-3xl">🎨</span>
+                                    Neon Genesis Evangelion
+                                </h3>
+                                <p class="text-slate-700 leading-relaxed mb-4">
+                                    EVA's color scheme—purple, orange, and blue—is not only visually striking but also
+                                    embodies emotional complexity: purple represents mystery and anxiety, orange
+                                    symbolizes warmth and hope, blue suggests calmness and melancholy.
+                                </p>
+                                <p class="text-slate-700 leading-relaxed">
+                                    These colors perfectly match Mirror Notes' emotional tone: acknowledging
+                                    vulnerability while seeking resonance.
+                                </p>
+                            </div>
+                            <div
+                                class="bg-gradient-to-br from-purple-500 via-orange-400 to-blue-500 rounded-2xl h-64 shadow-lg flex items-center justify-center">
+                                <div class="text-white text-center p-6">
+                                    <div class="text-6xl mb-4">🌌</div>
+                                    <p class="font-semibold text-lg">EVA Color Inspiration</p>
+                                    <p class="text-sm opacity-90">Purple · Orange · Blue</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shiromoto Yuka Section -->
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div
+                                class="order-2 md:order-1 bg-gradient-to-br from-slate-200 via-slate-100 to-white rounded-2xl h-64 shadow-lg flex items-center justify-center">
+                                <div class="text-center p-6">
+                                    <div class="text-6xl mb-4">✨</div>
+                                    <p class="font-semibold text-lg text-slate-800">Minimalist Aesthetics</p>
+                                    <p class="text-sm text-slate-600">Whitespace · Purity · Gentleness</p>
+                                </div>
+                            </div>
+                            <div class="order-1 md:order-2">
+                                <h3 class="text-2xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                                    <span class="text-3xl">🌸</span>
+                                    Shiromoto Yuka
+                                </h3>
+                                <p class="text-slate-700 leading-relaxed mb-4">
+                                    Japanese artist Shiromoto Yuka's work is known for its minimalist, gentle visual
+                                    language. Her designs often use abundant whitespace, soft tones, and rounded shapes
+                                    to create a quiet, healing atmosphere.
+                                </p>
+                                <p class="text-slate-700 leading-relaxed">
+                                    Mirror Notes' interface design draws from this aesthetic: rounded notes, soft
+                                    gradients, soothing animations—everything conveys "safety" and "gentleness."
+                                </p>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-gradient-to-r from-slate-50 to-purple-50 rounded-2xl p-6 border-l-4 border-teal-500">
+                            <p class="text-slate-700 text-center text-lg">
+                                🎨 <strong class="text-slate-900">Design Philosophy:</strong> Wrapping sharp emotional
+                                issues in gentle visual language.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Creator Section -->
+            <section class="mb-20 slide-up">
+                <div
+                    class="bg-gradient-to-br from-white/80 to-purple-50/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 md:p-12">
+                    <div class="flex items-center gap-3 mb-8">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-slate-800 font-display">About the Creator</h2>
+                    </div>
+
+                    <div class="max-w-3xl mx-auto">
+                        <div class="bg-white rounded-2xl shadow-lg p-8">
+                            <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
+                                <div class="flex-shrink-0">
+                                    <div
+                                        class="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+                                        <span class="text-5xl text-white font-bold">SF</span>
+                                    </div>
+                                </div>
+                                <div class="flex-grow text-center md:text-left">
+                                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Sun Fei</h3>
+                                    <p class="text-purple-600 font-medium mb-4">Project Founder & Designer</p>
+                                    <p class="text-slate-700 leading-relaxed mb-4">
+                                        A designer who believes that "gentleness is also strength." Hoping to create
+                                        warm digital spaces through design, where everyone can find resonance and
+                                        healing.
+                                    </p>
+                                    <div class="flex flex-wrap gap-2 justify-center md:justify-start">
+                                        <span
+                                            class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Interaction
+                                            Design</span>
+                                        <span class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm">User
+                                            Research</span>
+                                        <span
+                                            class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">Psychology
+                                            Enthusiast</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 pt-8 border-t border-slate-200">
+                                <h4 class="text-lg font-semibold text-slate-800 mb-4">Project Vision</h4>
+                                <p class="text-slate-700 leading-relaxed italic">
+                                    "I hope Mirror Notes can become a mirror—not the kind that makes you nitpick
+                                    yourself, but one that reflects 'you are not alone.' When you see others'
+                                    insecurities, perhaps you'll be more forgiving of yourself; when your feelings are
+                                    seen, perhaps you'll feel a bit of warmth. That's enough."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer CTA -->
+            <section class="text-center slide-up">
+                <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl shadow-2xl p-12">
+                    <h2 class="text-4xl font-bold text-white mb-6 font-display">Create Warm Connections Together</h2>
+                    <p class="text-white/90 text-lg mb-8 max-w-2xl mx-auto">
+                        Mirror Notes is a continuously growing project. If you have any ideas, suggestions, or stories
+                        to share, feel free to connect with us.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="./message-wall.html"
+                            class="btn-primary inline-flex items-center justify-center rounded-full h-14 px-8 text-lg font-semibold shadow-lg bg-white text-purple-600 hover:bg-purple-50 transition-all">
+                            Go to Message Wall
+                        </a>
+                        <a href="./solutions.html"
+                            class="btn-outline inline-flex items-center justify-center rounded-full h-14 px-8 text-lg font-semibold bg-transparent border-2 border-white text-white hover:bg-white/20 transition-all">
+                            View Solutions
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800/80 backdrop-blur-sm py-8 px-6 mt-20">
+        <div class="max-w-5xl mx-auto text-center">
+            <p class="text-white/70 text-sm">
+                © 2025 Mirror Notes. Connecting insecurity with gentleness, healing anxiety with understanding.
+            </p>
+            <p class="text-white/50 text-xs mt-2 italic">
+                If you have any questions or suggestions, feel free to connect with us through the message wall.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top"
+        class="fixed bottom-6 right-6 w-14 h-14 bg-purple-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 opacity-0 pointer-events-none z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18">
+            </path>
+        </svg>
+    </button>
+
+    <script>
+        // Back to top button
+        const backToTopBtn = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.style.opacity = '1';
+                backToTopBtn.style.pointerEvents = 'auto';
+            } else {
+                backToTopBtn.style.opacity = '0';
+                backToTopBtn.style.pointerEvents = 'none';
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.slide-up').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+    <!-- Shared Navbar Scroll Effect -->
+    <script src="scripts/navbar-scroll.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>MirrorTalk - Message Wall</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Poppins:wght@300;400;500&amp;display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="styles/common.css" />
+</head>
+
+<body class="font-sans text-text antialiased"
+    style="background: linear-gradient(135deg, #eaedf3 0%, #d7e2f7 25%, #cbdbfa 50%, #95afd8 75%, #9bbfee 100%);">
+    <div class="flex flex-col">
+        <header class="absolute top-0 left-0 right-0 z-50 px-6 sm:px-16 py-8 fade-in">
+            <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3 group">
+                    <div class="w-8 h-8 text-primary group-hover:text-secondary transition-colors duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm5 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-5.01-5.5c.98 0 1.83.61 2.21 1.5H9.8c.38-.89 1.23-1.5 2.21-1.5z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2
+                        class="text-3xl font-bold text-slate-800 font-display tracking-wider group-hover:text-primary transition-colors duration-300">
+                        Mirror Notes</h2>
+                </div>
+                <nav class="hidden md:flex items-center gap-12">
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="./index.html">Home</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="#">Healing Tips</a>
+                    <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                        href="#">Community</a>
+                </nav>
+                <button class="md:hidden text-slate-800">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-24">
+            <div class="max-w-2xl mx-auto text-center">
+                <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">Message Wall</h2>
+                <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">A shared space to release your anxieties,
+                    anonymously.</p>
+            </div>
+            <div
+                class="mt-12 max-w-xl mx-auto bg-background-light dark:bg-background-dark/50 p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                    for="anxiety-input">What about your appearance makes you anxious?</label>
+                <div class="mt-1 flex rounded-lg shadow-sm">
+                    <input
+                        class="flex-1 block w-full min-w-0 rounded-none rounded-l-lg border-slate-300 dark:border-slate-700 bg-background-light dark:bg-background-dark focus:ring-primary focus:border-primary text-slate-900 dark:text-white sm:text-sm"
+                        id="anxiety-input" name="anxiety-input" placeholder="Share your feeling..." type="text" />
+                    <button
+                        class="inline-flex items-center px-4 py-2 border border-l-0 border-primary bg-primary text-white font-semibold rounded-r-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background-light dark:focus:ring-offset-background-dark focus:ring-primary transition-colors"
+                        type="button">
+                        Submit
+                    </button>
+                </div>
+                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Your sticker will appear on the wall,
+                    anonymously.</p>
+            </div>
+            <div class="mt-12 text-center">
+                <p class="text-sm text-slate-500 dark:text-slate-400"><span class="font-bold">Tip:</span> Click on
+                    stickers
+                    to read what others have shared.</p>
+            </div>
+            <div class="relative mt-8 py-16 min-h-[500px]">
+                <div
+                    class="absolute inset-0 bg-grid-slate-200/[0.2] dark:bg-grid-slate-700/[0.2] [mask-image:linear-gradient(to_bottom,white,white,transparent)]">
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 20%; left: 10%;">
+                        <div class="w-32 h-32 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBbw7PGEGKb9JXKpdjhSdI2-jblZd1YWE4M9HuW7BsD2Oxw6GT1He1_dsqAFxmheLFvJgiGWsSJC0Ewqg743zNjwtjUq3bE9WTngNryNcoMzFnU-T1XY43NDPPFmq4NCqKUbcs7oghnwx5GgrrsxPs0DksSM6cWPvlpr6r5u2IIonQ-UYxjyAlXv293TV2YN9NpOjdTEtz5TgoNBGj1wURl3Oum4ih3Hz8BhPeWSNCmKcXbATzfLMs7skk1EgHBA936fXRxrvRmPQ");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            My nose is too big.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 50%; left: 30%;">
+                        <div class="w-28 h-28 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBOFPO5K-jePGvFXVcNcLVh3M7XI6CHZMbjbW-_d7Z4t4o6RKkSylWl_QAy4-aBelcsPoC24k9OSMYQebBeEltSkXWEkU3G_mBPLHixufmW1qcouS2syPtZYbs0mOqoBmleUqyVpU5U4TAQuYc1cxSveE3bCTU-R3RFK5zxVXu3hfInt-_NwjHYb8CQcxyaX8-wXacL_7e6KHqkfAF9kWzyiTh5QdjX28GCFAC-y4-EwlCC3IvbI6Vyq6ZoLiZqeipoGMXuNO9CHA");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            I hate my acne scars.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 10%; left: 55%;">
+                        <div class="w-36 h-36 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDmwdmXfB1jhSfmfl-10M6F_pI0NnDv298xrX1cjKXzX1ieTe_Ii4OCZApCr-0FwGu_UZq0y1L_tOxvQWFsosV4frmRKW8nByZu7mU7QahnNOP2ZmUa61UbJJl2VHTAkKdC45ZEpHR1SmQurScv2JtcssEy9vxybVaanLBABmsjerhQ4Ys0w3MIl2gFJwCWkO5RFI7kk6nc13JTF5AMd3eo4B4HwHAL2jHv38nsBA6iGq8VBd4zHzwWHqRzn7Vc8JqfLXjcetc-uA");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            My hair is so frizzy.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 60%; left: 70%;">
+                        <div class="w-24 h-24 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDC5hpOR1Jigzt4fW4R8b91CEFfr1biwLP7wOyKY9VMjruZve38gDA7WsLwTwwu_d2TArocEFdx9273qtK4Q4bFRNVgYWqVM35NAK0wuNgcVoo0E8Hxdz-_8Udj5Rdq6a5SahWDsGCjHZyehXBBasZOAvnjYT6PeFCItLBVsbkfrOpISb0dFizDinovTMyMzjb5ASIQQyN8l_janeaXgYbGGJGxwiSatp0yVKvTeu3D4iKZaxsl3cVEVKvrBnF_fBhX4YcyioNMjA");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            I wish I was taller.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 35%; left: 50%;">
+                        <div class="w-32 h-32 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCg7TOmEAnlv9eo1y4rPVlXRNekagmq7DYOLId3CXJDYWdVItYZ1deeK0rycF48EcSVQ_Fumu34B3k3YjIdi6m3SfPDat-wjGsXonqSsFCxqhUIVlRTXJiJZ_Y_0iT2_tpGQ9jGssmRFJgaNBJIXtRNNht_iPjoI8sBjU3fHoRo5GBKmkRG-_1wqzbuub5mLRzid8agYJGnHH-TW4gyPiuouRNzIPaD1IPPUZf7witHS_kYVlyWqTEGHWgd7l2qvNH3wBny7N0nhw");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            My teeth are not straight.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 75%; left: 5%;">
+                        <div class="w-28 h-28 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBkw_7kAIknpFqaIKkG7RrGJUEujH1veEpbRF-ZuAWvEpNMNZZ7yGz_O1Y320KM8mHEXWfK5L8ojAt29Q7lYOlvF_y6GOXLbhSGeVCQFXhYpi6Oopl8OdP9Zc7xtp2ZoZ0Ml-CdyD2V6VzoLrP6bXLpsXpKyVkLcPKZHutxqyi7ktsEpnvzgwsBm6tK9DXOWykr7QyEmSXWyjtaBBSEOgb6Q0BZhO56vLIN97BARY8nq007k53gq5-x9kklncBecKNSylXaEMseOQ");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            Feeling self-conscious about my weight.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 5%; left: 25%;">
+                        <div class="w-32 h-32 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAzhwIECrv3dMyoj--mLXQfci2Cw-JgT9kuNf-Gzx8xw2PT_Hkus8hMkmlHxtLKJolNcf9UkyxxnNzMz8d5BDnZ1L7Q-xonOcczVknUnL8RcTB4cc_YnNDB_Dt0yddGlDQbGwvuAVugxcxRkpXRwrB74mHcuyXjTxEfEet_vQxhVC7lYap_5FeLrVOSGD9T7G6j9c29dBXB_Xjzuao3x_r7rPkl10FbEmIOyogcfgJpjZgU93pNNQunRainPQp3NQUauYRfWCIStw");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            My skin is too pale.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 80%; left: 45%;">
+                        <div class="w-24 h-24 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD2Fw-B5xQ2Y7Temk5HCxdfnjdO9DhtF576af0_AakBD0LuOnYvMqq0CSfspj6ap12oYiLgP6_5SI9gPct-nQ5NGP_iXRGtmYR-qzgNFV3kk6-_AwJCz_1Cgrm5oOTkTTfDkWpZXGgoePhs3eLwl4C2RHHKr2SQw-FmrNWtnO1fv07iG2rUxnTKY_NiXIvBK60dTENE5QoZiX4mA3OXLYxqOL0VyCY5vfp5Du7GesQ0N9CtMY9kXqBuAAOiTExSty3f6YwY9GIYzA");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            Are my ears too big?</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 40%; left: 0%;">
+                        <div class="w-28 h-28 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQtCLeuhKDANLcus11xv1rCia8wVDEEOBLyVOLHBvbq7uDsaMYwUxrByfKhOK9_3tC5Vw-LkDug5ovUKzSXIXLPMzb1OU-O01yMGNcZtZsxTIIMntmi0JbMVVu7Dcr-oRwnxcb03wjgZSCcQ5FS0AdFyLtLFQaTGTLCG5yZrWIAHuOdjPSLwkgdvycxSZhZXkstKlvHGeajsWXK3F6-lJJE0qzm6z1Ohr8pcwZZhpBWvKifGkEPgKW_ZtqdmXJCh5Pz6F-kv_MVQ");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            My eyes are uneven.</div>
+                    </div>
+                    <div class="sticker-group relative cursor-pointer group transform transition-transform hover:scale-105"
+                        style="top: 70%; left: 0%;">
+                        <div class="w-32 h-32 rounded-full bg-cover bg-center shadow-lg"
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDxITCU_nQNKWJXZ05-mwUvAdBHK7tUUcHyMPJAMEuC5edLvlP4UIfYSBmBSD3uscgIyWK91cysaOfYFpeVQQYZsSbI7VJvzzYOVCecHKp7CXzZrQGWnX5RYefd9rqGfjqZOrWr_PcQeioi_MzgaO_DDeWaOD68DUCr2_0UJ8E1XDq6ig_0SYkAbShNnK51s0ZIZWWeWum60gu4El0lnFiek0yKJHK3hXJPNSeIG8zhbbwr2R5857UEU_Wk8uA8G13LWhXq66-p2Q");'>
+                        </div>
+                        <div class="sticker-content hidden">
+                            I don't like my smile.</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="sticker-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 transform transition-all duration-300 scale-95 opacity-0"
+            id="modal-content">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-semibold text-slate-800">Someone shared:</h3>
+                <button id="close-modal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <p id="modal-text" class="text-slate-700 mb-6 leading-relaxed"></p>
+            <div class="flex justify-center">
+                <button id="modal-close-btn"
+                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const modal = document.getElementById('sticker-modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalText = document.getElementById('modal-text');
+        const closeModal = document.getElementById('close-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        function showModal(text) {
+            modalText.textContent = text;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Trigger animation
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Add click events to stickers
+        document.querySelectorAll('.sticker-group').forEach(sticker => {
+            sticker.addEventListener('click', function () {
+                const text = this.querySelector('.sticker-content').textContent;
+                showModal(text);
+            });
+        });
+
+        // Close modal events
+        closeModal.addEventListener('click', hideModal);
+        modalCloseBtn.addEventListener('click', hideModal);
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) {
+                hideModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                hideModal();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

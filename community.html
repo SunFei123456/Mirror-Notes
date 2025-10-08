@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Community - Mirror Notes</title>
+    <meta name="description"
+        content="Join our WhatsApp community to discuss appearance anxiety and support one another">
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Poppins:wght@300;400;500&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="styles/common.css" />
+    <style>
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(155, 89, 182, 0.3), 0 0 40px rgba(233, 30, 99, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(155, 89, 182, 0.5), 0 0 60px rgba(233, 30, 99, 0.4);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            opacity: 0;
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        .slide-up-delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .slide-up-delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .slide-up-delay-3 {
+            animation-delay: 0.6s;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #9b59b6 0%, #e91e63 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .whatsapp-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(37, 211, 102, 0.4), 0 8px 15px rgba(18, 140, 126, 0.3);
+        }
+
+        .whatsapp-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .whatsapp-btn:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased"
+    style="background: linear-gradient(135deg, #eaedf3 0%, #d7e2f7 25%, #cbdbfa 50%, #95afd8 75%, #9bbfee 100%);">
+
+    <!-- Header -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 px-6 sm:px-16 py-6 transition-all duration-300 fade-in">
+        <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+            <a href="./index.html" class="flex items-center gap-3 group">
+                <div class="w-8 h-8 text-primary group-hover:text-secondary transition-colors duration-300">
+                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2.5-3.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm5 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-5.01-5.5c.98 0 1.83.61 2.21 1.5H9.8c.38-.89 1.23-1.5 2.21-1.5z">
+                        </path>
+                    </svg>
+                </div>
+                <h2
+                    class="text-3xl font-bold text-slate-800 font-display tracking-wider group-hover:text-primary transition-colors duration-300">
+                    Mirror Notes</h2>
+            </a>
+            <nav class="hidden md:flex items-center gap-12">
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./index.html">Home</a>
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./message-wall.html">Wall</a>
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./solutions.html">Solutions</a>
+                <a class="nav-link relative text-base font-light text-slate-900 font-medium transition-colors"
+                    href="./community.html">Community</a>
+                <a class="nav-link relative text-base font-light text-slate-700 hover:text-slate-900 transition-colors"
+                    href="./about.html">About</a>
+            </nav>
+            <button class="md:hidden text-slate-800">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 6h16M4 12h16m-7 6h7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="min-h-screen flex items-center justify-center pt-32 pb-20 px-4 sm:px-6">
+        <div class="mx-auto w-full" style="max-width: 1200px;">
+
+            <!-- Hero Section -->
+            <section class="text-center slide-up">
+                <div class="mb-8">
+                    <div class="inline-block float-animation">
+                        <div
+                            class="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl pulse-glow">
+                            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="font-display text-5xl md:text-7xl font-bold text-slate-800 mb-4 leading-tight tracking-wide">
+                    Continue the <span class="gradient-text">Conversation</span>
+                </h1>
+                <p class="font-display text-3xl md:text-4xl font-light text-slate-600 mb-12">
+                    Join Our Community
+                </p>
+            </section>
+
+            <!-- Content Card -->
+            <section class="slide-up slide-up-delay-1">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 mb-8">
+                    <div class="max-w-2xl mx-auto space-y-8">
+
+                        <!-- Main Description -->
+                        <div class="text-center">
+                            <p class="text-lg md:text-xl text-slate-700 leading-relaxed">
+                                Join our WhatsApp group to discuss appearance anxiety and support one another in
+                                a safe, anonymous space where we empathize, not judge.
+                            </p>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="flex items-center gap-4 py-6">
+                            <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent">
+                            </div>
+                            <div class="text-slate-400">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent">
+                            </div>
+                        </div>
+
+                        <!-- Core Values -->
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <div
+                                    class="w-14 h-14 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold text-slate-800 mb-2">Safe Space</h3>
+                                <p class="text-sm text-slate-600">Secure Environment</p>
+                            </div>
+
+                            <div class="text-center">
+                                <div
+                                    class="w-14 h-14 mx-auto mb-3 bg-pink-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-7 h-7 text-pink-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold text-slate-800 mb-2">Anonymous</h3>
+                                <p class="text-sm text-slate-600">Private Communication</p>
+                            </div>
+
+                            <div class="text-center">
+                                <div
+                                    class="w-14 h-14 mx-auto mb-3 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <h3 class="font-semibold text-slate-800 mb-2">Supportive</h3>
+                                <p class="text-sm text-slate-600">Mutual Support</p>
+                            </div>
+                        </div>
+
+                        <!-- Emphasis Box -->
+                        <div
+                            class="bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-6 border-2 border-purple-200">
+                            <div class="flex items-center justify-center gap-3 mb-3">
+                                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                                <h3 class="text-xl font-semibold text-slate-800">Our Promise</h3>
+                            </div>
+                            <p class="text-center text-lg text-slate-700 font-medium italic">
+                                "We don't judge, we empathize."
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA Button -->
+            <section class="text-center slide-up slide-up-delay-2">
+                <a href="https://chat.whatsapp.com/YOUR_GROUP_INVITE_LINK" target="_blank" rel="noopener noreferrer"
+                    class="whatsapp-btn inline-flex items-center justify-center gap-3 rounded-full h-16 px-10 text-lg font-semibold text-white shadow-2xl group">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                    </svg>
+                    <span>Join Now</span>
+                    <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                    </svg>
+                </a>
+
+                <p class="mt-6 text-slate-600 text-sm">
+                    By joining, you agree to participate respectfully and support others with empathy.
+                </p>
+            </section>
+
+            <!-- Additional Navigation -->
+            <section class="mt-16 text-center slide-up slide-up-delay-3">
+                <p class="text-slate-600 mb-6">Explore more ways to connect and heal</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="./message-wall.html"
+                        class="btn-secondary inline-flex items-center justify-center rounded-full h-12 px-6 text-base font-semibold shadow-lg">
+                        Message Wall
+                    </a>
+                    <a href="./solutions.html"
+                        class="btn-primary inline-flex items-center justify-center rounded-full h-12 px-6 text-base font-semibold shadow-lg">
+                        Solutions
+                    </a>
+                    <a href="./about.html"
+                        class="btn-outline inline-flex items-center justify-center rounded-full h-12 px-6 text-base font-semibold">
+                        About Us
+                    </a>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800/80 backdrop-blur-sm py-8 px-6">
+        <div class="max-w-5xl mx-auto text-center">
+            <p class="text-white/70 text-sm">
+                © 2025 Mirror Notes. We don't judge, we empathize.
+            </p>
+            <p class="text-white/50 text-xs mt-2 italic">
+                Connecting insecurity with gentleness, healing anxiety with understanding
+            </p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top"
+        class="fixed bottom-6 right-6 w-14 h-14 bg-purple-500 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-white hover:scale-110 opacity-0 pointer-events-none z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18">
+            </path>
+        </svg>
+    </button>
+
+    <script>
+        // Back to top button
+        const backToTopBtn = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.style.opacity = '1';
+                backToTopBtn.style.pointerEvents = 'auto';
+            } else {
+                backToTopBtn.style.opacity = '0';
+                backToTopBtn.style.pointerEvents = 'none';
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.slide-up').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+    <!-- Shared Navbar Scroll Effect -->
+    <script src="scripts/navbar-scroll.js"></script>
+
+</body>
+
+</html>
