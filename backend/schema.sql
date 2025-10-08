@@ -47,18 +47,7 @@ CREATE TABLE IF NOT EXISTS `wall_stickers` (
     INDEX `idx_intensity` (`intensity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息墙便签表';
 
--- 便签连接表
-CREATE TABLE IF NOT EXISTS `sticker_connections` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `sticker1_id` INT NOT NULL COMMENT '便签1 ID',
-    `sticker2_id` INT NOT NULL COMMENT '便签2 ID',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '连接时间',
-    UNIQUE KEY `unique_connection` (`sticker1_id`, `sticker2_id`),
-    FOREIGN KEY (`sticker1_id`) REFERENCES `wall_stickers`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`sticker2_id`) REFERENCES `wall_stickers`(`id`) ON DELETE CASCADE,
-    INDEX `idx_sticker1` (`sticker1_id`),
-    INDEX `idx_sticker2` (`sticker2_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='便签连接表';
+-- 便签连接表已删除 - 连线操作仅在前端UI处理，不需要持久化到数据库
 
 -- 便签反应表
 CREATE TABLE IF NOT EXISTS `sticker_reactions` (

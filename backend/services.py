@@ -1,5 +1,5 @@
 from database import db
-from models import SolutionNote, UserLike, WallSticker, StickerConnection, StickerReaction
+from models import SolutionNote, UserLike, WallSticker, StickerReaction
 from datetime import datetime
 
 class SolutionService:
@@ -110,11 +110,18 @@ class SolutionService:
 class WallStickerService:
     @staticmethod
     def get_all_stickers():
-        """获取所有便签"""
+        """获取所有便签，包含反应统计"""
         query = """
-        SELECT id, text, type, category, body_part, intensity, position_x, position_y, rotation, created_at, updated_at
-        FROM wall_stickers 
-        ORDER BY created_at DESC
+        SELECT 
+            ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+            ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'same' THEN 1 ELSE 0 END), 0) as same_count,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'great' THEN 1 ELSE 0 END), 0) as great_count
+        FROM wall_stickers ws
+        LEFT JOIN sticker_reactions sr ON ws.id = sr.sticker_id
+        GROUP BY ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+                 ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at
+        ORDER BY ws.created_at DESC
         """
         result = db.execute_query(query)
         if result:
@@ -122,12 +129,40 @@ class WallStickerService:
         return []
     
     @staticmethod
-    def get_sticker_by_id(sticker_id):
-        """根据ID获取便签"""
+    def get_random_stickers(limit=6):
+        """随机获取指定数量的便签，包含反应统计"""
         query = """
-        SELECT id, text, type, category, body_part, intensity, position_x, position_y, rotation, created_at, updated_at
-        FROM wall_stickers 
-        WHERE id = %s
+        SELECT 
+            ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+            ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'same' THEN 1 ELSE 0 END), 0) as same_count,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'great' THEN 1 ELSE 0 END), 0) as great_count
+        FROM wall_stickers ws
+        LEFT JOIN sticker_reactions sr ON ws.id = sr.sticker_id
+        GROUP BY ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+                 ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at
+        ORDER BY RAND()
+        LIMIT %s
+        """
+        result = db.execute_query(query, (limit,))
+        if result:
+            return [WallSticker.from_dict(row) for row in result]
+        return []
+    
+    @staticmethod
+    def get_sticker_by_id(sticker_id):
+        """根据ID获取便签，包含反应统计"""
+        query = """
+        SELECT 
+            ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+            ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'same' THEN 1 ELSE 0 END), 0) as same_count,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'great' THEN 1 ELSE 0 END), 0) as great_count
+        FROM wall_stickers ws
+        LEFT JOIN sticker_reactions sr ON ws.id = sr.sticker_id
+        WHERE ws.id = %s
+        GROUP BY ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+                 ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at
         """
         result = db.execute_query(query, (sticker_id,))
         if result:
@@ -178,76 +213,42 @@ class WallStickerService:
     
     @staticmethod
     def get_stickers_by_filter(category='all', intensity='all'):
-        """根据过滤条件获取便签"""
+        """根据过滤条件获取便签，包含反应统计"""
         base_query = """
-        SELECT id, text, type, category, body_part, intensity, position_x, position_y, rotation, created_at, updated_at
-        FROM wall_stickers 
+        SELECT 
+            ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+            ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'same' THEN 1 ELSE 0 END), 0) as same_count,
+            COALESCE(SUM(CASE WHEN sr.reaction_type = 'great' THEN 1 ELSE 0 END), 0) as great_count
+        FROM wall_stickers ws
+        LEFT JOIN sticker_reactions sr ON ws.id = sr.sticker_id
         WHERE 1=1
         """
         params = []
         
         if category != 'all':
             if category == 'support':
-                base_query += " AND type = 'support'"
+                base_query += " AND ws.type = 'support'"
             else:
-                base_query += " AND category = %s"
+                base_query += " AND ws.category = %s"
                 params.append(category)
         
         if intensity != 'all':
-            base_query += " AND intensity = %s"
+            base_query += " AND ws.intensity = %s"
             params.append(int(intensity))
         
-        base_query += " ORDER BY created_at DESC"
+        base_query += """
+        GROUP BY ws.id, ws.text, ws.type, ws.category, ws.body_part, ws.intensity, 
+                 ws.position_x, ws.position_y, ws.rotation, ws.created_at, ws.updated_at
+        ORDER BY ws.created_at DESC
+        """
         
         result = db.execute_query(base_query, params)
         if result:
             return [WallSticker.from_dict(row) for row in result]
         return []
 
-class StickerConnectionService:
-    @staticmethod
-    def create_connection(sticker1_id, sticker2_id):
-        """创建便签连接"""
-        # 检查连接是否已存在
-        check_query = """
-        SELECT id FROM sticker_connections 
-        WHERE (sticker1_id = %s AND sticker2_id = %s) OR (sticker1_id = %s AND sticker2_id = %s)
-        """
-        existing = db.execute_query(check_query, (sticker1_id, sticker2_id, sticker2_id, sticker1_id))
-        
-        if existing:
-            return {"success": False, "message": "Connection already exists"}
-        
-        # 创建连接
-        query = "INSERT INTO sticker_connections (sticker1_id, sticker2_id) VALUES (%s, %s)"
-        affected_rows = db.execute_update(query, (sticker1_id, sticker2_id))
-        
-        if affected_rows > 0:
-            return {"success": True, "message": "Connection created successfully"}
-        return {"success": False, "message": "Failed to create connection"}
-    
-    @staticmethod
-    def delete_connection(sticker1_id, sticker2_id):
-        """删除便签连接"""
-        query = """
-        DELETE FROM sticker_connections 
-        WHERE (sticker1_id = %s AND sticker2_id = %s) OR (sticker1_id = %s AND sticker2_id = %s)
-        """
-        affected_rows = db.execute_update(query, (sticker1_id, sticker2_id, sticker2_id, sticker1_id))
-        return affected_rows > 0
-    
-    @staticmethod
-    def get_all_connections():
-        """获取所有连接"""
-        query = """
-        SELECT id, sticker1_id, sticker2_id, created_at
-        FROM sticker_connections
-        ORDER BY created_at DESC
-        """
-        result = db.execute_query(query)
-        if result:
-            return [StickerConnection.from_dict(row) for row in result]
-        return []
+# StickerConnectionService 已删除 - 连线操作仅在前端UI处理
 
 class StickerReactionService:
     @staticmethod

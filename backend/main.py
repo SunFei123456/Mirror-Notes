@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from services import SolutionService, WallStickerService, StickerConnectionService, StickerReactionService
+from services import SolutionService, WallStickerService, StickerReactionService
 from models import SolutionNote, WallSticker
 import json
 
@@ -190,17 +190,36 @@ async def get_user_likes(request: Request):
 # ==================== Message Wall Stickers API ====================
 
 @app.get("/api/wall/stickers")
-async def get_all_stickers():
-    """获取所有便签"""
+async def get_all_stickers(limit: int = 6):
+    """获取便签，默认限制6个"""
     try:
         stickers = WallStickerService.get_all_stickers()
+        # 限制返回数量
+        limited_stickers = stickers[:limit]
+        print(f"Found {len(stickers)} stickers, returning {len(limited_stickers)}")
+        return {
+            "success": True,
+            "data": [sticker.to_dict() for sticker in limited_stickers],
+            "count": len(limited_stickers)
+        }
+    except Exception as e:
+        print(f"Error fetching stickers: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch stickers: {str(e)}")
+
+@app.get("/api/wall/stickers/random")
+async def get_random_stickers(limit: int = 6):
+    """随机获取指定数量的便签"""
+    try:
+        stickers = WallStickerService.get_random_stickers(limit)
+        print(f"Returning {len(stickers)} random stickers")
         return {
             "success": True,
             "data": [sticker.to_dict() for sticker in stickers],
             "count": len(stickers)
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch stickers: {str(e)}")
+        print(f"Error fetching random stickers: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch random stickers: {str(e)}")
 
 @app.get("/api/wall/stickers/{sticker_id}")
 async def get_sticker_by_id(sticker_id: int):
@@ -322,75 +341,8 @@ async def get_stickers_by_filter(category: str = "all", intensity: str = "all"):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch filtered stickers: {str(e)}")
 
-# ==================== Sticker Connections API ====================
-
-@app.post("/api/wall/connections")
-async def create_connection(request: Request):
-    """创建便签连接"""
-    try:
-        body = await request.json()
-        sticker1_id = body.get("sticker1_id")
-        sticker2_id = body.get("sticker2_id")
-        
-        if not sticker1_id or not sticker2_id:
-            raise HTTPException(status_code=400, detail="sticker1_id and sticker2_id are required")
-        
-        if sticker1_id == sticker2_id:
-            raise HTTPException(status_code=400, detail="Cannot connect sticker to itself")
-        
-        result = StickerConnectionService.create_connection(sticker1_id, sticker2_id)
-        
-        return {
-            "success": result["success"],
-            "message": result["message"]
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create connection: {str(e)}")
-
-@app.delete("/api/wall/connections")
-async def delete_connection(request: Request):
-    """删除便签连接"""
-    try:
-        body = await request.json()
-        sticker1_id = body.get("sticker1_id")
-        sticker2_id = body.get("sticker2_id")
-        
-        if not sticker1_id or not sticker2_id:
-            raise HTTPException(status_code=400, detail="sticker1_id and sticker2_id are required")
-        
-        success = StickerConnectionService.delete_connection(sticker1_id, sticker2_id)
-        
-        if success:
-            return {
-                "success": True,
-                "message": "Connection deleted successfully"
-            }
-        else:
-            return {
-                "success": False,
-                "message": "Connection not found"
-            }
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete connection: {str(e)}")
-
-@app.get("/api/wall/connections")
-async def get_all_connections():
-    """获取所有连接"""
-    try:
-        connections = StickerConnectionService.get_all_connections()
-        return {
-            "success": True,
-            "data": [conn.to_dict() for conn in connections],
-            "count": len(connections)
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch connections: {str(e)}")
+# ==================== Sticker Connections (前端UI处理，无后端接口) ====================
+# 连线操作仅在前端处理，不需要后端API
 
 # ==================== Sticker Reactions API ====================
 
