@@ -371,6 +371,86 @@
         </a>
     </div>
 
+    <!-- Share Mode Modal -->
+    <div id="share-mode-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
+        onclick="closeShareModeModal(event)">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0"
+            id="share-mode-content" onclick="event.stopPropagation()">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">Choose Sharing Mode</h3>
+                <p class="text-slate-600">How would you like to share your experience?</p>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Anonymous Mode -->
+                <button id="anonymous-mode-btn" 
+                    class="w-full p-4 border-2 border-slate-200 rounded-2xl hover:border-cyan-400 hover:bg-cyan-50 transition-all duration-300 text-left group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            ?
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-800 group-hover:text-cyan-700">Anonymous Mode</h4>
+                            <p class="text-sm text-slate-600">Share without revealing your identity</p>
+                        </div>
+                    </div>
+                </button>
+                
+                <!-- Signature Mode -->
+                <button id="signature-mode-btn" 
+                    class="w-full p-4 border-2 border-slate-200 rounded-2xl hover:border-purple-400 hover:bg-purple-50 transition-all duration-300 text-left group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            ✍
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-800 group-hover:text-purple-700">Signature Mode</h4>
+                            <p class="text-sm text-slate-600">Share with your chosen nickname</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="flex justify-end mt-6">
+                <button onclick="closeShareModeModal()" 
+                    class="px-6 py-2 text-slate-600 hover:text-slate-800 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signature Input Modal -->
+    <div id="signature-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
+        onclick="closeSignatureModal(event)">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0"
+            id="signature-content" onclick="event.stopPropagation()">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 mb-2">Add Your Signature</h3>
+                <p class="text-slate-600">Choose a nickname to display with your share</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Nickname</label>
+                <input type="text" id="nickname-input" 
+                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-slate-700 placeholder-slate-400"
+                    placeholder="Enter your nickname" maxlength="20">
+                <p class="text-xs text-slate-500 mt-2">Maximum 20 characters</p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="closeSignatureModal()" 
+                    class="flex-1 px-4 py-3 text-slate-600 hover:text-slate-800 transition-colors rounded-xl">
+                    Cancel
+                </button>
+                <button id="confirm-signature-btn" 
+                    class="flex-1 px-4 py-3 bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-xl transition-colors">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Note Detail Modal -->
     <div id="note-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
         onclick="closeNoteModal(event)">
@@ -469,8 +549,113 @@
         // Share functionality
         const shareBtn = document.getElementById('share-btn');
         const shareInput = document.getElementById('share-input');
+        let currentShareText = '';
+        let shareMode = 'anonymous'; // 'anonymous' or 'signature'
+        let userNickname = '';
 
-        function createNoteCard(text) {
+        // Show share mode modal
+        function showShareModeModal() {
+            const text = shareInput.value.trim();
+            if (!text) {
+                alert('Please enter your experience before sharing!');
+                return;
+            }
+            
+            currentShareText = text;
+            const modal = document.getElementById('share-mode-modal');
+            const content = document.getElementById('share-mode-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // Close share mode modal
+        function closeShareModeModal(event) {
+            if (event && event.target.closest('#share-mode-content') && !event.target.closest('button')) {
+                return;
+            }
+            
+            const modal = document.getElementById('share-mode-modal');
+            const content = document.getElementById('share-mode-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Show signature modal
+        function showSignatureModal() {
+            const modal = document.getElementById('signature-modal');
+            const content = document.getElementById('signature-content');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // Close signature modal
+        function closeSignatureModal(event) {
+            if (event && event.target.closest('#signature-content') && !event.target.closest('button')) {
+                return;
+            }
+            
+            const modal = document.getElementById('signature-modal');
+            const content = document.getElementById('signature-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Handle anonymous mode
+        function handleAnonymousMode() {
+            shareMode = 'anonymous';
+            userNickname = '';
+            createNoteCard(currentShareText, shareMode, userNickname);
+            closeShareModeModal();
+            shareInput.value = '';
+            showSuccessToast();
+        }
+
+        // Handle signature mode
+        function handleSignatureMode() {
+            const nickname = document.getElementById('nickname-input').value.trim();
+            if (!nickname) {
+                alert('Please enter a nickname!');
+                return;
+            }
+            
+            shareMode = 'signature';
+            userNickname = nickname;
+            createNoteCard(currentShareText, shareMode, userNickname);
+            closeSignatureModal();
+            shareInput.value = '';
+            showSuccessToast();
+        }
+
+        // Show success toast
+        function showSuccessToast() {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg z-50';
+            toast.textContent = 'Thank you for sharing! 💚';
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        function createNoteCard(text, mode = 'anonymous', nickname = '') {
             const colors = [
                 { bg: 'bg-yellow-pastel', gradient: 'from-yellow-400 to-amber-500', initial: 'A' },
                 { bg: 'bg-pink-pastel', gradient: 'from-pink-400 to-rose-500', initial: 'B' },
@@ -481,6 +666,16 @@
             ];
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
             const newId = 'note_' + Date.now();
+
+            // Determine display name and avatar
+            let displayName, avatarInitial;
+            if (mode === 'anonymous') {
+                displayName = 'Anonymous';
+                avatarInitial = randomColor.initial;
+            } else {
+                displayName = nickname;
+                avatarInitial = nickname.charAt(0).toUpperCase();
+            }
 
             const card = document.createElement('div');
             card.className = `note-card ${randomColor.bg} rounded-2xl p-6 shadow`;
@@ -493,9 +688,9 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br ${randomColor.gradient} flex items-center justify-center text-white font-bold">
-                            ${randomColor.initial}
+                            ${avatarInitial}
                         </div>
-                        <span class="text-slate-700 font-medium">Anonymous</span>
+                        <span class="text-slate-700 font-medium">${displayName}</span>
                     </div>
                     <button class="like-btn flex items-center gap-2 text-slate-600 hover:text-red-500 transition-colors"
                         onclick="toggleLike(this)">
@@ -524,31 +719,33 @@
             }, 10);
         }
 
-        shareBtn.addEventListener('click', () => {
-            const text = shareInput.value.trim();
-            if (text) {
-                createNoteCard(text);
-                shareInput.value = '';
-                // Show success message
-                const toast = document.createElement('div');
-                toast.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg z-50';
-                toast.textContent = 'Thank you for sharing! 💚';
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.style.transition = 'opacity 0.3s';
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.remove(), 300);
-                }, 2000);
-            } else {
-                alert('Please enter your experience before sharing!');
-            }
-        });
+        shareBtn.addEventListener('click', showShareModeModal);
 
         // Enter key to share
         shareInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && e.ctrlKey) {
                 shareBtn.click();
             }
+        });
+
+        // Event listeners for modals
+        document.addEventListener('DOMContentLoaded', () => {
+            // Share mode modal buttons
+            document.getElementById('anonymous-mode-btn').addEventListener('click', handleAnonymousMode);
+            document.getElementById('signature-mode-btn').addEventListener('click', () => {
+                closeShareModeModal();
+                showSignatureModal();
+            });
+            
+            // Signature modal buttons
+            document.getElementById('confirm-signature-btn').addEventListener('click', handleSignatureMode);
+            
+            // Enter key in nickname input
+            document.getElementById('nickname-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    handleSignatureMode();
+                }
+            });
         });
 
         // Modal functionality
